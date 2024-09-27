@@ -37,9 +37,16 @@ GeneralSettingsTab::GeneralSettingsTab(Settings& s, SettingsDialog& d)
   ui->showMenubarOnAlt->setChecked(settings().interface().showMenubarOnAlt());
   ui->doubleClickPreviews->setChecked(
       settings().interface().doubleClicksOpenPreviews());
-  ui->modNameGuess->addItem("Default");
-  ui->modNameGuess->addItem("Filename");
-  ui->modNameGuess->addItem("Modname-Filename");
+  ui->modNameGuess->addItem("Default", 0);
+  ui->modNameGuess->addItem("Filename", 1);
+  ui->modNameGuess->addItem("Modname-Filename", 2);
+  const auto guessType = settings().interface().guessModNameType();
+  if (guessType == "Default")
+    ui->modNameGuess->setCurrentIndex(0);
+  else if (guessType == "Filename")
+    ui->modNameGuess->setCurrentIndex(1);
+  else if (guessType == "Modname-Filename")
+    ui->modNameGuess->setCurrentIndex(2);
 
   QObject::connect(ui->categoriesBtn, &QPushButton::clicked, [&] {
     onEditCategories();
