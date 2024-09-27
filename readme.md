@@ -1,4 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/hxenwxmpaob5xung?svg=true)](https://ci.appveyor.com/project/ModOrganizer2/modorganizer-736bd)
+# Disclaimer
+This is a forked Mod Organizer 2, it does not require the original copy MO2. Changes are listed on the platform where the edition is published, which is [Nexusmods](https://www.nexusmods.com/site/mods/1050) and [ModPub](https://mod.pub/modding-tools/225-mod-organizer-2-senjay-edition)
 
 # Mod Organizer
 
@@ -35,7 +36,8 @@ Credits to Tannin, LePresidente, Silarn, erasmux, AL12, LostDragonist, AnyOldNam
 
 ## Building
 
-Please refer to [Modorganizer2/mob](https://github.com/modorganizer2/mob) for build instructions.
+Please refer to [Modorganizer2/mob](https://github.com/modorganizer2/mob) for build instructions.\
+Building for the Senjay Edition requires extra steps, simply follow the mob and build as usual then replace the source files with the fork in this [repository](https://github.com/Senjay-id?tab=repositories&q=modorganizer2&type=&language=&sort=). Just build again after that
 
 ## Other Repositories
 
