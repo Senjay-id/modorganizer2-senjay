@@ -655,6 +655,9 @@ public:
   bool hideAPICounter() const;
   void setHideAPICounter(bool b);
 
+  bool queryMD5ModArchive() const;
+  void setQueryMD5ModArchive(bool b);
+
   // whether the user wants to see non-official plugins installed outside MO in
   // the mod list
   //
@@ -686,6 +689,9 @@ public:
   //
   bool doubleClicksOpenPreviews() const;
   void setDoubleClicksOpenPreviews(bool b);
+
+  QString guessModNameType() const;
+  void setGuessModNameType(QString s);
 
   // filter widget options
   //

@@ -898,6 +898,9 @@ void ModListView::restoreState(const Settings& s)
 
 void ModListView::saveState(Settings& s) const
 {
+  ui.filter->clear();
+  m_filters->clearSelection();
+
   s.geometry().saveState(header());
 
   s.widgets().saveIndex(ui.groupBy);

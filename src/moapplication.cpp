@@ -330,9 +330,18 @@ int MOApplication::run(MOMultiProcess& multiProcess)
                         m_core.get());
 
   // styling
+  const QSettings settings(
+      "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+      QSettings::NativeFormat);
+  const bool isDarkTheme = settings.value("SystemUsesLightTheme", 1).toInt() == 0;
+  const QString styleFile      = isDarkTheme ? "vs15 Dark.qss" : "Paper Light.qss";
   if (!setStyleFile(m_settings->interface().styleName().value_or(""))) {
     // disable invalid stylesheet
-    m_settings->interface().setStyleName("");
+    m_settings->interface().setStyleName(styleFile);
+  }
+  
+  if (!m_settings->interface().styleName()) {
+    m_settings->interface().setStyleName(styleFile);
   }
 
   int res = 1;

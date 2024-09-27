@@ -37,6 +37,9 @@ GeneralSettingsTab::GeneralSettingsTab(Settings& s, SettingsDialog& d)
   ui->showMenubarOnAlt->setChecked(settings().interface().showMenubarOnAlt());
   ui->doubleClickPreviews->setChecked(
       settings().interface().doubleClicksOpenPreviews());
+  ui->modNameGuess->addItem("Default");
+  ui->modNameGuess->addItem("Filename");
+  ui->modNameGuess->addItem("Modname-Filename");
 
   QObject::connect(ui->categoriesBtn, &QPushButton::clicked, [&] {
     onEditCategories();
@@ -82,6 +85,7 @@ void GeneralSettingsTab::update()
   settings().interface().setShowMenubarOnAlt(ui->showMenubarOnAlt->isChecked());
   settings().interface().setDoubleClicksOpenPreviews(
       ui->doubleClickPreviews->isChecked());
+  settings().interface().setGuessModNameType(ui->modNameGuess->currentText());
 }
 
 void GeneralSettingsTab::addLanguages()

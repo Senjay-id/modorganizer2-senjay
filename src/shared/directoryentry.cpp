@@ -167,6 +167,15 @@ void DirectoryEntry::addFromAllBSAs(const std::wstring& originName,
                                     const std::vector<std::wstring>& loadOrder,
                                     DirectoryStats& stats)
 {
+  std::vector<std::wstring>::const_iterator itor;
+  bool isTTWBSA = false;
+
+  for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+    if (entry.is_regular_file() &&
+        entry.path().filename() == "TaleOfTwoWastelands - Main.bsa") {
+      isTTWBSA = true;
+    }
+  }
   for (const auto& archive : archives) {
     const std::filesystem::path archivePath(archive);
     const auto filename = archivePath.filename().native();
@@ -179,20 +188,21 @@ void DirectoryEntry::addFromAllBSAs(const std::wstring& originName,
 
     int order = -1;
 
-    for (auto plugin : loadOrder) {
-      const auto pluginNameLc =
-          ToLowerCopy(std::filesystem::path(plugin).stem().native());
+    if (!isTTWBSA) {
+      for (auto plugin : loadOrder) {
+        const auto pluginNameLc =
+            ToLowerCopy(std::filesystem::path(plugin).stem().native());
 
-      if (filenameLc.starts_with(pluginNameLc + L" - ") ||
-          filenameLc.starts_with(pluginNameLc + L".")) {
-        auto itor = std::find(loadOrder.begin(), loadOrder.end(), plugin);
-        if (itor != loadOrder.end()) {
-          order = std::distance(loadOrder.begin(), itor);
+        if (filenameLc.starts_with(pluginNameLc + L" - ") ||
+            filenameLc.starts_with(pluginNameLc + L".")) {
+          itor = std::find(loadOrder.begin(), loadOrder.end(), plugin);
+          if (itor != loadOrder.end()) {
+            order = std::distance(loadOrder.begin(), itor);
+          }
         }
       }
+      addFromBSA(originName, directory, archivePath.native(), priority, order, stats);
     }
-
-    addFromBSA(originName, directory, archivePath.native(), priority, order, stats);
   }
 }
 

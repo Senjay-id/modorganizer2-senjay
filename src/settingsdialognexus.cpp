@@ -296,6 +296,7 @@ NexusSettingsTab::NexusSettingsTab(Settings& s, SettingsDialog& d) : SettingsTab
   ui->trackedBox->setChecked(settings().nexus().trackedIntegration());
   ui->categoryMappingsBox->setChecked(settings().nexus().categoryMappings());
   ui->hideAPICounterBox->setChecked(settings().interface().hideAPICounter());
+  ui->queryMD5ModArchive->setChecked(settings().interface().queryMD5ModArchive());
 
   // display server preferences
   for (const auto& server : s.network().servers()) {
@@ -362,6 +363,7 @@ void NexusSettingsTab::update()
   settings().nexus().setTrackedIntegration(ui->trackedBox->isChecked());
   settings().nexus().setCategoryMappings(ui->categoryMappingsBox->isChecked());
   settings().interface().setHideAPICounter(ui->hideAPICounterBox->isChecked());
+  settings().interface().setQueryMD5ModArchive(ui->queryMD5ModArchive->isChecked());
 
   auto servers = settings().network().servers();
 

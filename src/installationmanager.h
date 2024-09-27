@@ -37,6 +37,8 @@ along with Mod Organizer.  If not, see <http://www.gnu.org/licenses/>.
 #include "modinfo.h"
 #include "plugincontainer.h"
 
+class Settings;
+
 // contains installation result from the manager, internal class
 // for MO2 that is not forwarded to plugin
 class InstallationResult
@@ -94,6 +96,10 @@ public:
 
   virtual ~InstallationManager();
 
+  bool isFromNexus;
+  int tempModID;
+  QString tempModName;
+
   void setParentWidget(QWidget* widget);
 
   /**
@@ -115,6 +121,8 @@ public:
    * otherwise.
    */
   void notifyInstallationEnd(const InstallationResult& result, ModInfo::Ptr newMod);
+
+  QString getAPIKey(const QString& mo2apicred);
 
   /**
    * @brief update the directory where mods are to be installed
@@ -283,12 +291,16 @@ private:
 
   void postInstallCleanup();
 
+  QNetworkAccessManager* m_NetworkManager;
+
 private slots:
 
   /**
    * @brief Query user for password and update the m_Password field.
    */
   void queryPassword();
+
+  void handleNetworkResponse();
 
 signals:
 
@@ -306,6 +318,8 @@ signals:
    * @brief An existing mod has been replaced with a newly installed one.
    */
   void modReplaced(const QString fileName);
+
+  void installationReady(bool isfromnexus);
 
 private:
   struct CaseInsensitive

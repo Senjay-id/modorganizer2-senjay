@@ -78,7 +78,9 @@ static T resolveFunction(QLibrary& lib, const char* name)
   return temp;
 }
 
-InstallationManager::InstallationManager() : m_ParentWidget(nullptr), m_IsRunning(false)
+InstallationManager::InstallationManager()
+    : m_ParentWidget(nullptr), m_IsRunning(false),
+      m_NetworkManager(new QNetworkAccessManager(this))
 {
   m_ArchiveHandler = CreateArchive();
   if (!m_ArchiveHandler->isValid()) {
@@ -698,17 +700,80 @@ InstallationResult InstallationManager::install(const QString& fileName,
 
   {  // guess the mod name and mod if from the file name if there was no meta
      // information
+    isFromNexus                 = false;
+    tempModID                   = -1;
+    tempModName                 = "";
+    bool isQueryMD5ModArchive   = Settings::instance().interface().queryMD5ModArchive();
+    bool isGuessModnameFilename = Settings::instance().interface().guessModNameType() == "Modname-Filename";
+    if (isQueryMD5ModArchive || isGuessModnameFilename)
+    {
+      QFile f(fileName);
+      if (!f.open(QFile::ReadOnly)) {
+        log::warn("failed to open file '{}' for md5", fileName);
+      }
+      QByteArray hashValue;
+      QCryptographicHash hash(QCryptographicHash::Md5);
+      if (!hash.addData(&f)) {
+        log::warn("failed to calculate md5 for '{}'", fileName);
+      } else {
+        hashValue = hash.result().toHex();
+      }
+      log::debug("MD5Hash for {} is {}", fileName, QString(hashValue));
+      QString hashValueString = QString(hashValue);
+      QString requestUrl =
+          QString("https://api.nexusmods.com/v1/games/newvegas/mods/md5_search/%1.json")
+              .arg(hashValueString);
+
+      QNetworkRequest request(requestUrl);
+      QString apiKey = getAPIKey("ModOrganizer2_APIKEY");
+      request.setRawHeader("apikey", apiKey.toUtf8());
+
+      QNetworkReply* reply = m_NetworkManager->get(request);
+      QEventLoop eventLoop;
+      
+      connect(this, &InstallationManager::installationReady, [&](bool result) {
+        isFromNexus = result;
+        eventLoop.quit();
+      });
+
+      connect(reply, &QNetworkReply::finished, this,
+              &InstallationManager::handleNetworkResponse);
+
+      m_NetworkManager->get(request);
+      eventLoop.exec();
+
+    }
+    //log::debug("isfromnexus: {}", isFromNexus);
     QString guessedModName;
     int guessedModID = modID;
     NexusInterface::interpretNexusFileName(QFileInfo(fileName).fileName(),
                                            guessedModName, guessedModID, false);
-    if ((modID == 0) && (guessedModID != -1)) {
-      modID = guessedModID;
+    //log::warn("tempmodid is {}", tempModID);
+    if ((modID == 0)) {
+      if (!isQueryMD5ModArchive && (guessedModID != -1)) {
+        modID = guessedModID;
+      } else if (isFromNexus && tempModID != -1) {
+        modID = tempModID;
+        log::debug("Mod archive is from nexus");
+      } else if (isFromNexus) {
+        modID = guessedModID;
+        log::debug("Mod archive is from nexus based on the filename");
+      }
+      else {
+        log::debug("Mod archive is not from nexus");
+        modID = 0;
+      }
+        
     } else if (modID != guessedModID) {
       log::debug("passed mod id: {}, guessed id: {}", modID, guessedModID);
     }
-
-    modName.update(guessedModName, GUESS_GOOD);
+    QString guessedModNameType = Settings::instance().interface().guessModNameType();
+    if (guessedModNameType == "Default")
+      modName.update(guessedModName, GUESS_GOOD);
+    else if (guessedModNameType == "Filename")
+      modName.update(guessedModName);
+    else if (guessedModNameType == "Modname-Filename")
+      modName.update(tempModName + " - " + guessedModName);
   }
 
   m_CurrentFile = fileInfo.absoluteFilePath();
@@ -942,4 +1007,94 @@ void InstallationManager::notifyInstallationEnd(const InstallationResult& result
       installer->onInstallationEnd(result.result(), newMod.get());
     }
   }
+}
+
+void InstallationManager::handleNetworkResponse()
+{
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply) {
+    const auto responseCode =
+        reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    bool isNexus = (responseCode == 200);
+
+        if (isNexus) {
+      QByteArray responseData = reply->readAll();
+      //log::debug("Response data: {}", QString::fromUtf8(responseData));
+
+      QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+      if (!jsonDoc.isNull() && jsonDoc.isArray()) {
+        QJsonArray jsonArray = jsonDoc.array();
+        if (!jsonArray.isEmpty()) {
+          QJsonObject jsonObject = jsonArray[0].toObject();
+          if (jsonObject.contains("mod") && jsonObject["mod"].isObject()) {
+            QJsonObject modObject = jsonObject["mod"].toObject();
+
+            if (modObject.contains("name") && modObject["name"].isString()) {
+              tempModName = modObject["name"].toString();
+              log::debug("Retrieved mod name: {}", tempModName);
+            } else {
+              log::warn(
+                  "Response does not contain mod name or it is not a valid string");
+            }
+
+            if (modObject.contains("mod_id") && modObject["mod_id"].isDouble()) {
+              tempModID = modObject["mod_id"].toInt();
+              log::debug("Retrieved mod_id: {}", tempModID);
+            } else {
+              log::warn(
+                  "Response does not contain mod_id or it is not a valid integer");
+            }
+          }
+        } else {
+          log::warn("JSON array is empty");
+        }
+      } else {
+        log::warn("Failed to parse JSON response or it's not an array");
+      }
+    }
+    //log::warn("TEMPID is {}", tempModID);
+    emit installationReady(isNexus);  // Emit the signal with the result
+
+    reply->deleteLater();
+  }
+}
+
+struct CredentialFreer
+{
+  void operator()(CREDENTIALW* c)
+  {
+    if (c) {
+      CredFree(c);
+    }
+  }
+};
+
+QString InstallationManager::getAPIKey(const QString& mo2apicred)
+{
+  CREDENTIALW* rawCreds  = nullptr;
+
+  using CredentialPtr = std::unique_ptr<CREDENTIALW, CredentialFreer>;
+  const auto ret =
+      CredReadW(mo2apicred.toStdWString().c_str(), CRED_TYPE_GENERIC, 0, &rawCreds);
+
+  CredentialPtr creds(rawCreds);
+
+  if (!ret) {
+    const auto e = GetLastError();
+
+    if (e != ERROR_NOT_FOUND) {
+      log::error("failed to retrieve windows credential {}: {}", mo2apicred,
+                 formatSystemMessage(e));
+    }
+
+    return {};
+  }
+
+  QString value;
+  if (creds->CredentialBlob) {
+    value =
+        QString::fromWCharArray(reinterpret_cast<const wchar_t*>(creds->CredentialBlob),
+                                creds->CredentialBlobSize / sizeof(wchar_t));
+  }
+  return value;
 }

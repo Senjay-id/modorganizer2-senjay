@@ -2324,12 +2324,12 @@ void MainWindow::gameSupportTriggered()
 
 void MainWindow::discordTriggered()
 {
-  shell::Open(QUrl("https://discord.gg/ewUVAqyrQX"));
+  shell::Open(QUrl("https://discord.gg/cUAHU8Rgyh"));
 }
 
 void MainWindow::issueTriggered()
 {
-  shell::Open(QUrl("https://github.com/Modorganizer2/modorganizer/issues"));
+  shell::Open(QUrl("https://github.com/Senjay-id/modorganizer2-senjay/issues"));
 }
 
 void MainWindow::tutorialTriggered()

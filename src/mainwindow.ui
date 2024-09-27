@@ -1460,17 +1460,17 @@
    <addaction name="actionChange_Game"/>
    <addaction name="actionInstallMod"/>
    <addaction name="actionNexus"/>
-   <addaction name="actionModPage"/>
+    <!-- <addaction name="actionModPage"/> -->
    <addaction name="actionAdd_Profile"/>
    <addaction name="action_Refresh"/>
    <addaction name="actionModify_Executables"/>
    <addaction name="actionTool"/>
    <addaction name="actionSettings"/>
    <addaction name="separator"/>
-   <addaction name="actionEndorseMO"/>
+    <!-- <addaction name="actionEndorseMO"/> -->
    <addaction name="actionNotifications"/>
-   <addaction name="actionUpdate"/>
-   <addaction name="actionHelp"/>
+    <!-- <addaction name="actionUpdate"/> -->
+    <!-- <addaction name="actionHelp"/> -->
   </widget>
   <widget class="StatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">

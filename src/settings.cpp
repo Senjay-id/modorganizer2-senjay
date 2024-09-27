@@ -196,7 +196,7 @@ QString Settings::filename() const
 
 bool Settings::checkForUpdates() const
 {
-  return get<bool>(m_Settings, "Settings", "check_for_updates", true);
+  return get<bool>(m_Settings, "Settings", "check_for_updates", false);
 }
 
 void Settings::setCheckForUpdates(bool b)
@@ -236,7 +236,7 @@ void Settings::setProfileLocalSaves(bool b)
 
 bool Settings::profileArchiveInvalidation() const
 {
-  return get<bool>(m_Settings, "Settings", "profile_archive_invalidation", false);
+  return get<bool>(m_Settings, "Settings", "profile_archive_invalidation", true);
 }
 
 void Settings::setProfileArchiveInvalidation(bool b)
@@ -246,7 +246,7 @@ void Settings::setProfileArchiveInvalidation(bool b)
 
 bool Settings::useSplash() const
 {
-  return get<bool>(m_Settings, "Settings", "use_splash", true);
+  return get<bool>(m_Settings, "Settings", "use_splash", false);
 }
 
 void Settings::setUseSplash(bool b)
@@ -843,14 +843,19 @@ void GeometrySettings::restoreToolbars(QMainWindow* w) const
   // all toolbars have the same size and button style settings
   const auto size  = getOptional<QSize>(m_Settings, "Geometry", "toolbar_size");
   const auto style = getOptional<int>(m_Settings, "Geometry", "toolbar_button_style");
+  const QSize largeToolbarSize(42, 36);
 
   for (auto* tb : w->findChildren<QToolBar*>()) {
     if (size) {
       tb->setIconSize(*size);
+    } else {
+      tb->setIconSize(largeToolbarSize);
     }
 
     if (style) {
       tb->setToolButtonStyle(static_cast<Qt::ToolButtonStyle>(*style));
+    } else {
+      tb->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     }
 
     restoreVisibility(tb);
@@ -915,7 +920,7 @@ void GeometrySettings::setModInfoTabOrder(const QString& names)
 
 bool GeometrySettings::centerDialogs() const
 {
-  return get<bool>(m_Settings, "Settings", "center_dialogs", false);
+  return get<bool>(m_Settings, "Settings", "center_dialogs", true);
 }
 
 void GeometrySettings::setCenterDialogs(bool b)
@@ -2225,7 +2230,7 @@ void InterfaceSettings::setCheckUpdateAfterInstallation(bool b)
 
 bool InterfaceSettings::compactDownloads() const
 {
-  return get<bool>(m_Settings, "Settings", "compact_downloads", false);
+  return get<bool>(m_Settings, "Settings", "compact_downloads", true);
 }
 
 void InterfaceSettings::setCompactDownloads(bool b)
@@ -2235,7 +2240,7 @@ void InterfaceSettings::setCompactDownloads(bool b)
 
 bool InterfaceSettings::metaDownloads() const
 {
-  return get<bool>(m_Settings, "Settings", "meta_downloads", false);
+  return get<bool>(m_Settings, "Settings", "meta_downloads", true);
 }
 
 void InterfaceSettings::setMetaDownloads(bool b)
@@ -2259,6 +2264,16 @@ bool InterfaceSettings::hideAPICounter() const
 }
 
 void InterfaceSettings::setHideAPICounter(bool b)
+{
+  set(m_Settings, "Settings", "hide_api_counter", b);
+}
+
+bool InterfaceSettings::queryMD5ModArchive() const
+{
+  return get<bool>(m_Settings, "Settings", "hide_api_counter", false);
+}
+
+void InterfaceSettings::setQueryMD5ModArchive(bool b)
 {
   set(m_Settings, "Settings", "hide_api_counter", b);
 }
@@ -2335,6 +2350,16 @@ bool InterfaceSettings::doubleClicksOpenPreviews() const
 void InterfaceSettings::setDoubleClicksOpenPreviews(bool b)
 {
   set(m_Settings, "Settings", "double_click_previews", b);
+}
+
+QString InterfaceSettings::guessModNameType() const
+{
+  return get<QString>(m_Settings, "Settings", "modname_guess", "Default");
+}
+
+void InterfaceSettings::setGuessModNameType(QString m)
+{
+  set(m_Settings, "Settings", "modname_guess", m);
 }
 
 FilterWidget::Options InterfaceSettings::filterOptions() const

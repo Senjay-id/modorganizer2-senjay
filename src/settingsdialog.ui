@@ -177,6 +177,9 @@
              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0">
               <item>
                <widget class="QCheckBox" name="checkForUpdates">
+                 <property name="visible">
+                   <bool>false</bool>
+                 </property>
                 <property name="toolTip">
                  <string>Check for Mod Organizer updates on Github on startup.</string>
                 </property>
@@ -190,6 +193,9 @@
               </item>
               <item>
                <widget class="QCheckBox" name="usePrereleaseBox">
+                 <property name="visible">
+                   <bool>false</bool>
+                 </property>
                 <property name="toolTip">
                  <string>Update to non-stable releases.</string>
                 </property>
@@ -295,6 +301,33 @@
                 </property>
                </widget>
               </item>
+               <item row="1" column="0">
+                 <widget class="QLabel" name="label_2024">
+                   <property name="text">
+                     <string>Guess Mod Name</string>
+                   </property>
+                 </widget>
+               </item>
+               <item row="1" column="1">
+                 <widget class="QComboBox" name="modNameGuess">
+                   <property name="toolTip">
+                     <string>
+                       Decides how MO2 guesses the mod name when installing a mod.
+                       &quot;Default&quot; Uses filename of the first main mod at the modpage.
+                       &quot;Filename&quot; Uses the filename from the modpage as the default guess.
+                       &quot;Modname-Filename&quot; Uses the name of the mod in nexus as modname and filename separated by a hypen.
+                     </string>
+                   </property>
+                   <property name="whatsThis">
+                     <string>
+                       Decides how MO2 guesses the mod name when installing a mod.
+                       &quot;Default&quot; Uses filename of the first main mod at the modpage.
+                       &quot;Filename&quot; Uses the filename from the modpage as the default guess.
+                       &quot;Modname-Filename&quot; Uses the name of the mod in nexus as modname and filename separated by a hypen.
+                     </string>
+                   </property>
+                 </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -564,6 +597,9 @@ If you disable this feature, MO will only display official DLCs this way. Please
           </item>
           <item>
            <widget class="QCheckBox" name="saveFiltersBox">
+             <property name="visible">
+               <bool>false</bool>
+             </property>
             <property name="toolTip">
              <string>Save the current filters when closing MO2 and restore them on startup.</string>
             </property>
@@ -1363,6 +1399,19 @@ If you disable this feature, MO will only display official DLCs this way. Please
                    </property>
                   </widget>
                  </item>
+                  <item>
+                    <widget class="QCheckBox" name="queryMD5ModArchive">
+                      <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, MO2 will not attempt to query the MD5 of the mod archive to determine if it's from nexus.  This process will hang MO2 for a split second because it's waiting for Nexus to respond.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, MO2 will not attempt to query the MD5 of the mod archive to determine if it's from nexus.  This process will hang MO2 for a split second because it's waiting for Nexus to respond.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                        <string>Query MD5 Mod Archive to Nexus</string>
+                      </property>
+                    </widget>
+                  </item>
                 </layout>
                </widget>
               </item>
