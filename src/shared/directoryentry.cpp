@@ -24,6 +24,7 @@ along with Mod Organizer.  If not, see <http://www.gnu.org/licenses/>.
 #include "originconnection.h"
 #include "util.h"
 #include "windows_error.h"
+#include "..\settings.h"
 #include <filesystem>
 #include <log.h>
 #include <utility.h>
@@ -168,6 +169,15 @@ void DirectoryEntry::addFromAllBSAs(const std::wstring& originName,
                                     const std::vector<std::wstring>& loadOrder,
                                     DirectoryStats& stats)
 {
+  const QStringList excludedBSAArchives = Settings::instance().excludeBSAArchiveParsing();
+
+  for (const auto& excludedArchive : excludedBSAArchives) {
+    const std::wstring fullPath = directory + L"/" + excludedArchive.toStdWString();
+    if (std::filesystem::exists(fullPath)) {
+      return;
+    }
+  }
+
   for (const auto& archive : archives) {
     const std::filesystem::path archivePath(archive);
     const auto filename = archivePath.filename().native();

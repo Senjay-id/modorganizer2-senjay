@@ -641,8 +641,7 @@ void MainWindow::updateWindowTitle(const APIUserAccount& user)
   //"\xe2\x80\x93" is an "em dash", a longer "-"
   QString title =
       QString("%1 \xe2\x80\x93 Mod Organizer v%2")
-          .arg(m_OrganizerCore.managedGame()->displayGameName(),
-               m_OrganizerCore.getVersion().string(Version::FormatCondensed));
+          .arg(m_OrganizerCore.managedGame()->displayGameName(), "2.5.3b2-SE1.0.1");
 
   if (!user.name().isEmpty()) {
     const QString premium = (user.type() == APIUserAccountTypes::Premium ? "*" : "");
@@ -2334,12 +2333,12 @@ void MainWindow::gameSupportTriggered()
 
 void MainWindow::discordTriggered()
 {
-  shell::Open(QUrl("https://discord.gg/ewUVAqyrQX"));
+  shell::Open(QUrl("https://discord.gg/cUAHU8Rgyh"));
 }
 
 void MainWindow::issueTriggered()
 {
-  shell::Open(QUrl("https://github.com/Modorganizer2/modorganizer/issues"));
+  shell::Open(QUrl("https://github.com/Senjay-id/modorganizer2-senjay/issues"));
 }
 
 void MainWindow::tutorialTriggered()

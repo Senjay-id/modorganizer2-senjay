@@ -126,6 +126,27 @@ public:
   void setNexusID(int modID) override;
 
   /**
+   * @brief set/change the domain name this mod
+   *
+   * @param domainName the domain name
+   */
+  virtual void setDomainName(const QString& domainName) override;
+
+  /**
+   * @brief set/change the file description this mod
+   *
+   * @param fileDescription the file description
+   */
+  virtual void setFileDescription(const QString& fileDescription) override;
+
+  /**
+   * @brief set/change the file id of this mod
+   *
+   * @param fileID the nexus file id
+   **/
+  void setFileID(int fileID) override;
+
+  /**
    * @brief set the version of this mod
    *
    * this can be used to overwrite the version of a mod without actually
@@ -440,6 +461,10 @@ public:
   virtual QString url() const override;
 
   virtual QString gameName() const override { return m_GameName; }
+  virtual QString domainName() const override { return m_DomainName; }
+  virtual QString fileDescription() const override { return m_FileDescription; }
+  int fileID() const override { return m_FileID; }
+
   virtual QString installationFile() const override { return m_InstallationFile; }
   virtual bool converted() const override { return m_Converted; }
   virtual bool validated() const override { return m_Validated; }
@@ -490,6 +515,10 @@ private:
   // Game name for the mod, can be different from the actual game running in MO2
   // e.g., for Skyrim / Skyrim SE.
   QString m_GameName;
+
+  QString m_DomainName;
+  QString m_FileDescription;
+  int m_FileID;
 
   mutable QStringList m_Archives;
 

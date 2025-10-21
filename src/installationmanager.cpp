@@ -482,6 +482,11 @@ bool InstallationManager::ensureValidModName(GuessedValue<QString>& name) const
 
 InstallationResult InstallationManager::doInstall(GuessedValue<QString>& modName,
                                                   QString gameName, int modID,
+                                                  const QString& domainName, 
+                                                  const QString& cleanModName,
+                                                  const QString& cleanFileName,
+                                                  const QString& description,
+                                                  int fileID,
                                                   const QString& version,
                                                   const QString& newestVersion,
                                                   int categoryID, int fileCategoryID,
@@ -536,6 +541,21 @@ InstallationResult InstallationManager::doInstall(GuessedValue<QString>& modName
   }
   if ((modID != 0) || !settingsFile.contains("modid")) {
     settingsFile.setValue("modid", modID);
+  }
+  if (!settingsFile.contains("cleanModName")) {
+    settingsFile.setValue("cleanModName", cleanModName);
+  }
+  if (!settingsFile.contains("domainName")) {
+    settingsFile.setValue("domainName", domainName);
+  }
+  if (!settingsFile.contains("cleanFileName")) {
+    settingsFile.setValue("cleanFileName", cleanFileName);
+  }
+  if (!settingsFile.contains("fileDescription")) {
+    settingsFile.setValue("fileDescription", description);
+  }
+  if (!settingsFile.contains("fileid")) {
+    settingsFile.setValue("fileid", fileID);
   }
   if (!settingsFile.contains("version") ||
       (!version.isEmpty() &&
@@ -645,16 +665,29 @@ InstallationResult InstallationManager::install(const QString& fileName,
   QString gameName      = "";
   QString version       = "";
   QString newestVersion = "";
+  QString domainName    = "";
+  QString cleanModName    = "";
+  QString cleanFileName = "";
+  QString fileDescription = "";
+  int fileid              = 0;
   int category          = 0;
   int categoryID        = 0;
   int fileCategoryID    = 1;
   QString repository    = "Nexus";
 
+  bool archiveFromModPub = fileName.contains("[mod.pub]", Qt::CaseInsensitive);
+
   QString metaName = fileName + ".meta";
-  if (QFile(metaName).exists()) {
+  bool metaExists  = QFile(metaName).exists();
+  if (metaExists) {
     QSettings metaFile(metaName, QSettings::IniFormat);
     gameName = metaFile.value("gameName", "").toString();
     modID    = metaFile.value("modID", 0).toInt();
+    domainName      = metaFile.value("domainName", "").toString();
+    cleanModName    = metaFile.value("modName", "").toString();
+    cleanFileName   = metaFile.value("name", "").toString();
+    fileDescription = metaFile.value("description", "").toString();
+    fileid          = metaFile.value("fileID", 0).toInt();
     QTextDocument doc;
     doc.setHtml(metaFile.value("name", "").toString());
     modName.update(doc.toPlainText(), GUESS_FALLBACK);
@@ -708,7 +741,29 @@ InstallationResult InstallationManager::install(const QString& fileName,
       log::debug("passed mod id: {}, guessed id: {}", modID, guessedModID);
     }
 
-    modName.update(guessedModName, GUESS_GOOD);
+    // for now we will treat other archive are from nexus if it doesn't have [mod.pub] identifier
+    if (archiveFromModPub) {
+      modID = 0;
+      repository = "ModPub";
+    }
+      
+    QString guessedModNameType = Settings::instance().interface().guessModNameType();
+    if (guessedModNameType == "Default")
+      modName.update(guessedModName, GUESS_GOOD);
+    else if (guessedModNameType == "Filename") {
+      if (metaExists)
+        modName.update(cleanFileName);
+      else
+        modName.update(guessedModName);
+    }
+    else if (guessedModNameType == "Modname-Filename")
+    {
+      if (metaExists) {
+        modName.update(cleanModName + " - " + cleanFileName);
+      } else { // unimplemented, needs to query the md5 of the archive to nexus, using default
+        modName.update(guessedModName, GUESS_GOOD);
+      }
+    }
   }
 
   m_CurrentFile = fileInfo.absoluteFilePath();
@@ -806,7 +861,7 @@ InstallationResult InstallationManager::install(const QString& fileName,
 
             // the simple installer only prepares the installation, the rest
             // works the same for all installers
-            installResult = doInstall(modName, gameName, modID, version, newestVersion,
+            installResult = doInstall(modName, gameName, modID, domainName, cleanModName, cleanFileName, fileDescription, fileid, version, newestVersion,
                                       categoryID, fileCategoryID, repository);
           }
         }
@@ -834,7 +889,7 @@ InstallationResult InstallationManager::install(const QString& fileName,
     } catch (const IncompatibilityException& e) {
       log::error("plugin \"{}\" incompatible: {}", installer->name(), e.what());
     }
-
+     
     // act upon the installation result. at this point the files have already been
     // extracted to the correct location
     switch (installResult.result()) {

@@ -196,7 +196,7 @@ QString Settings::filename() const
 
 bool Settings::checkForUpdates() const
 {
-  return get<bool>(m_Settings, "Settings", "check_for_updates", true);
+  return get<bool>(m_Settings, "Settings", "check_for_updates", false);
 }
 
 void Settings::setCheckForUpdates(bool b)
@@ -236,7 +236,7 @@ void Settings::setProfileLocalSaves(bool b)
 
 bool Settings::profileArchiveInvalidation() const
 {
-  return get<bool>(m_Settings, "Settings", "profile_archive_invalidation", false);
+  return get<bool>(m_Settings, "Settings", "profile_archive_invalidation", true);
 }
 
 void Settings::setProfileArchiveInvalidation(bool b)
@@ -246,7 +246,7 @@ void Settings::setProfileArchiveInvalidation(bool b)
 
 bool Settings::useSplash() const
 {
-  return get<bool>(m_Settings, "Settings", "use_splash", true);
+  return get<bool>(m_Settings, "Settings", "use_splash", false);
 }
 
 void Settings::setUseSplash(bool b)
@@ -342,6 +342,20 @@ QStringList Settings::skipDirectories() const
 void Settings::setSkipDirectories(const QStringList& s)
 {
   set(m_Settings, "Settings", "skip_directories", s);
+}
+
+QStringList Settings::excludeBSAArchiveParsing() const
+{
+  static const QStringList _default = QStringList() << "TaleOfTwoWastelands - Main.bsa";
+
+  auto setting = get<QStringList>(m_Settings, "Settings", "exclude_bsa_archive_parsing", _default);
+
+  return setting;
+}
+
+void Settings::setExcludeBSAArchiveParsing(const QStringList& s)
+{
+  set(m_Settings, "Settings", "exclude_bsa_archive_parsing", s);
 }
 
 void Settings::setMotdHash(uint hash)
@@ -843,14 +857,19 @@ void GeometrySettings::restoreToolbars(QMainWindow* w) const
   // all toolbars have the same size and button style settings
   const auto size  = getOptional<QSize>(m_Settings, "Geometry", "toolbar_size");
   const auto style = getOptional<int>(m_Settings, "Geometry", "toolbar_button_style");
+  const QSize largeToolbarSize(42, 36);
 
   for (auto* tb : w->findChildren<QToolBar*>()) {
     if (size) {
       tb->setIconSize(*size);
+    } else {
+      tb->setIconSize(largeToolbarSize);
     }
 
     if (style) {
       tb->setToolButtonStyle(static_cast<Qt::ToolButtonStyle>(*style));
+    } else {
+      tb->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     }
 
     restoreVisibility(tb);
@@ -915,7 +934,7 @@ void GeometrySettings::setModInfoTabOrder(const QString& names)
 
 bool GeometrySettings::centerDialogs() const
 {
-  return get<bool>(m_Settings, "Settings", "center_dialogs", false);
+  return get<bool>(m_Settings, "Settings", "center_dialogs", true);
 }
 
 void GeometrySettings::setCenterDialogs(bool b)
@@ -2235,7 +2254,7 @@ void InterfaceSettings::setCheckUpdateAfterInstallation(bool b)
 
 bool InterfaceSettings::compactDownloads() const
 {
-  return get<bool>(m_Settings, "Settings", "compact_downloads", false);
+  return get<bool>(m_Settings, "Settings", "compact_downloads", true);
 }
 
 void InterfaceSettings::setCompactDownloads(bool b)
@@ -2245,7 +2264,7 @@ void InterfaceSettings::setCompactDownloads(bool b)
 
 bool InterfaceSettings::metaDownloads() const
 {
-  return get<bool>(m_Settings, "Settings", "meta_downloads", false);
+  return get<bool>(m_Settings, "Settings", "meta_downloads", true);
 }
 
 void InterfaceSettings::setMetaDownloads(bool b)
@@ -2271,6 +2290,97 @@ bool InterfaceSettings::hideAPICounter() const
 void InterfaceSettings::setHideAPICounter(bool b)
 {
   set(m_Settings, "Settings", "hide_api_counter", b);
+}
+
+bool InterfaceSettings::queryMD5ModArchive() const
+{
+  return get<bool>(m_Settings, "Settings", "query_md5_archive", false);
+}
+
+void InterfaceSettings::setQueryMD5ModArchive(bool b)
+{
+  set(m_Settings, "Settings", "query_md5_archive", b);
+}
+
+// 8 Hidden settings below
+bool InterfaceSettings::modUpdateToNXMLatestVersion() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_latest_version", true);
+}
+
+void InterfaceSettings::setModUpdateToNXMLatestVersion(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_latest_version", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMNewVersion() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_new_version", true);
+}
+
+void InterfaceSettings::setModUpdateToNXMNewVersion(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_new_version", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMRemovePreviousVersion() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_remove_previous_version", false);
+}
+
+void InterfaceSettings::setModUpdateToNXMRemovePreviousVersion(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_remove_previous_version", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMRemoveDownloadWithManager() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_remove_download_manager", false);
+}
+
+void InterfaceSettings::setModUpdateToNXMRemoveDownloadWithManager(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_remove_download_manager", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMSetAsMainVortex() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_set_as_main_vortex", true);
+}
+
+void InterfaceSettings::setModUpdateToNXMSetAsMainVortex(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_set_as_main_vortex", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMInformDownloader() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_inform_downloader", true);
+}
+
+void InterfaceSettings::setModUpdateToNXMInformDownloader(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_inform_downloader", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMAutoSaveFile() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_auto_save_file", false);
+}
+
+void InterfaceSettings::setModUpdateToNXMAutoSaveFile(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_auto_save_file", b);
+}
+
+bool InterfaceSettings::modUpdateToNXMUodateCurrentModVersionToMeta() const
+{
+  return get<bool>(m_Settings, "Settings", "update_nxm_update_current_mod_version_meta", true);
+}
+
+void InterfaceSettings::setModUpdateToNXMUodateCurrentModVersionToMeta(bool b)
+{
+  set(m_Settings, "Settings", "update_nxm_update_current_mod_version_meta", b);
 }
 
 bool InterfaceSettings::displayForeign() const
@@ -2345,6 +2455,16 @@ bool InterfaceSettings::doubleClicksOpenPreviews() const
 void InterfaceSettings::setDoubleClicksOpenPreviews(bool b)
 {
   set(m_Settings, "Settings", "double_click_previews", b);
+}
+
+QString InterfaceSettings::guessModNameType() const
+{
+  return get<QString>(m_Settings, "Settings", "modname_guess", "Default");
+}
+
+void InterfaceSettings::setGuessModNameType(QString m)
+{
+  set(m_Settings, "Settings", "modname_guess", m);
 }
 
 FilterWidget::Options InterfaceSettings::filterOptions() const

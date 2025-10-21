@@ -100,6 +100,18 @@ public:
   void setEndorsed(const QModelIndexList& indices, bool endorsed) const;
   void willNotEndorsed(const QModelIndexList& indices) const;
   void remapCategory(const QModelIndexList& indices) const;
+  void updateToNexus(const QModelIndex& index) const;
+
+  // handle the accepted update dialog asynchronously
+  //
+  void handleUpdateDialogAccepted(const QString& modDir, const QString& modName,
+                                  const QString& domainName, int nexusId, int fileId,
+                                  const QString& filename, const QString& version,
+                                  const QString& description, const QString& changelog,
+                                  bool isLatestVersion, bool isExisting,
+                                  bool removePreviousVersion,
+                                  bool removeDownloadManager, bool isMainVortexFile,
+                                  bool informDownloaders, bool autoSave, bool m) const;
 
   // set/reset color of the given selection, using the given reference index (index
   // at which the context menu was shown)

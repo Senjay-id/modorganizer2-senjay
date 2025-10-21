@@ -45,7 +45,7 @@ void ThemeSettingsTab::update()
 
 void ThemeSettingsTab::addStyles()
 {
-  ui->styleBox->addItem("None", "");
+  //ui->styleBox->addItem("None", "");
   for (auto&& key : QStyleFactory::keys()) {
     ui->styleBox->addItem(key, key);
   }

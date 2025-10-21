@@ -17,6 +17,8 @@ public:
   virtual bool updateNXMInfo() override { return false; }
   virtual void setGameName(const QString& gameName) override {}
   virtual void setNexusID(int) override {}
+  virtual void setDomainName(const QString& domainName) override {}
+  virtual void setFileDescription(const QString& fileDescription) override {}
   virtual void endorse(bool) override {}
   virtual void ignoreUpdate(bool) override {}
   virtual bool alwaysDisabled() const override { return true; }

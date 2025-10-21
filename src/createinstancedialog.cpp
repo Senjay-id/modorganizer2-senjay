@@ -359,6 +359,14 @@ void CreateInstanceDialog::finish()
     s.setProfileLocalInis(ci.profileSettings.localInis);
     s.setProfileLocalSaves(ci.profileSettings.localSaves);
     s.setProfileArchiveInvalidation(ci.profileSettings.archiveInvalidation);
+    // set default theme when creating a new instance
+    const QSettings settings(
+        "HKEY_CURRENT_"
+        "USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+        QSettings::NativeFormat);
+    const bool isDarkTheme  = settings.value("SystemUsesLightTheme", 0).toInt() == 0;
+    const QString styleFile = isDarkTheme ? "vs15 Dark.qss" : "Paper Light.qss";
+    s.interface().setStyleName(styleFile);
 
     logCreation(tr("Writing %1...").arg(ci.iniPath));
 

@@ -32,17 +32,26 @@ public:
   static std::optional<QStringList> changeSkipDirectories(QWidget* parent,
                                                           const QStringList& current);
 
+  // shows the exclusion dialog from the given string and returns the new
+  // exclusion if the user accepted it
+  //
+  static std::optional<QStringList>
+  changeExcludeBSAArchiveParsing(QWidget* parent,
+                                                          const QStringList& current);
+
   void update();
 
 private:
   QString m_ExecutableBlacklist;
   QStringList m_SkipFileSuffixes;
   QStringList m_SkipDirectories;
+  QStringList m_ExcludeBSAArchiveParsing;
 
   void on_bsaDateBtn_clicked();
   void on_execBlacklistBtn_clicked();
   void on_skipFileSuffixBtn_clicked();
   void on_skipDirectoriesBtn_clicked();
+  void on_excludeBSAArchiveParsingBtn_clicked();
   void on_resetGeometryBtn_clicked();
 };
 

@@ -57,8 +57,8 @@ void ProblemsDialog::runDiagnosis()
       m_hasProblems = true;
 
       if (diagnose->hasGuidedFix(key)) {
-        QPushButton* fixButton = new QPushButton(tr("Fix"));
-        fixButton->setProperty("fix",
+        QPushButton* fixButton = new QPushButton(tr("Resolve"));
+        fixButton->setProperty("Resolve",
                                QVariant::fromValue(reinterpret_cast<void*>(diagnose)));
         fixButton->setProperty("key", key);
         connect(fixButton, SIGNAL(clicked()), this, SLOT(startFix()));
@@ -105,7 +105,7 @@ void ProblemsDialog::startFix()
     return;
   }
   IPluginDiagnose* plugin =
-      reinterpret_cast<IPluginDiagnose*>(fixButton->property("fix").value<void*>());
+      reinterpret_cast<IPluginDiagnose*>(fixButton->property("Resolve").value<void*>());
   plugin->startGuidedFix(fixButton->property("key").toUInt());
   runDiagnosis();
 }

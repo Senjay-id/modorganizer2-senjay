@@ -658,6 +658,29 @@ public:
   bool hideAPICounter() const;
   void setHideAPICounter(bool b);
 
+  // whether to query the md5 archive to nexus to determine if the archive is from nexus
+  //
+  bool queryMD5ModArchive() const;
+  void setQueryMD5ModArchive(bool b);
+
+  // 8 Hidden settings below
+  bool modUpdateToNXMLatestVersion() const;
+  void setModUpdateToNXMLatestVersion(bool b);
+  bool modUpdateToNXMNewVersion() const;
+  void setModUpdateToNXMNewVersion(bool b);
+  bool modUpdateToNXMRemovePreviousVersion() const;
+  void setModUpdateToNXMRemovePreviousVersion(bool b);
+  bool modUpdateToNXMRemoveDownloadWithManager() const;
+  void setModUpdateToNXMRemoveDownloadWithManager(bool b);
+  bool modUpdateToNXMSetAsMainVortex() const;
+  void setModUpdateToNXMSetAsMainVortex(bool b);
+  bool modUpdateToNXMInformDownloader() const;
+  void setModUpdateToNXMInformDownloader(bool b);
+  bool modUpdateToNXMAutoSaveFile() const;
+  void setModUpdateToNXMAutoSaveFile(bool b);
+  bool modUpdateToNXMUodateCurrentModVersionToMeta() const;
+  void setModUpdateToNXMUodateCurrentModVersionToMeta(bool b);
+
   // whether the user wants to see non-official plugins installed outside MO in
   // the mod list
   //
@@ -689,6 +712,11 @@ public:
   //
   bool doubleClicksOpenPreviews() const;
   void setDoubleClicksOpenPreviews(bool b);
+
+  // whether to determine how MO2 guesses the mod name
+  //
+  QString guessModNameType() const;
+  void setGuessModNameType(QString s);
 
   // filter widget options
   //
@@ -803,6 +831,11 @@ public:
 
   QStringList skipDirectories() const;
   void setSkipDirectories(const QStringList& s);
+
+  // Exclude BSA archives from being parsed 
+  //
+  QStringList excludeBSAArchiveParsing() const;
+  void setExcludeBSAArchiveParsing(const QStringList& s);
 
   // ? looks obsolete, only used by dead code
   //

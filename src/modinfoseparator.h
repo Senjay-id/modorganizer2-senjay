@@ -21,6 +21,10 @@ public:
   virtual int nexusId() const override { return -1; }
   virtual void setGameName(const QString& gameName) override {}
   virtual void setNexusID(int /*modID*/) override {}
+  virtual void setDomainName(const QString& domainName) override {}
+  virtual QString domainName() const override { return ""; }
+  virtual void setFileDescription(const QString& fileDescription) override {}
+  virtual QString fileDescription() const override { return ""; }
   virtual void endorse(bool /*doEndorse*/) override {}
   virtual void ignoreUpdate(bool /*ignore*/) override {}
   virtual bool canBeUpdated() const override { return false; }

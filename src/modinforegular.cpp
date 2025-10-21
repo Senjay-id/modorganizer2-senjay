@@ -91,6 +91,8 @@ void ModInfoRegular::readMeta()
   if (tempGameName.size())
     m_GameName = tempGameName;
   m_NexusID = metaFile.value("modid", -1).toInt();
+  m_DomainName = metaFile.value("domainName", "").toString();
+  m_FileDescription = metaFile.value("fileDescription", "").toString();
   m_Version.parse(metaFile.value("version", "").toString());
   m_NewestVersion    = metaFile.value("newestVersion", "").toString();
   m_IgnoredVersion   = metaFile.value("ignoredVersion", "").toString();
@@ -263,6 +265,9 @@ void ModInfoRegular::saveMeta()
       metaFile.setValue("repository", m_Repository);
       metaFile.setValue("gameName", m_GameName);
       metaFile.setValue("modid", m_NexusID);
+      metaFile.setValue("domainName", m_DomainName);
+      metaFile.setValue("fileDescription", m_FileDescription);
+      metaFile.setValue("fileid", m_FileID);
       metaFile.setValue("comments", m_Comments);
       metaFile.setValue("notes", m_Notes);
       metaFile.setValue("nexusDescription", m_NexusDescription);
@@ -542,6 +547,24 @@ void ModInfoRegular::setGameName(const QString& gameName)
 void ModInfoRegular::setNexusID(int modID)
 {
   m_NexusID         = modID;
+  m_MetaInfoChanged = true;
+}
+
+void ModInfoRegular::setDomainName(const QString& domainName)
+{
+  m_DomainName = domainName;
+  m_MetaInfoChanged = true;
+}
+
+void ModInfoRegular::setFileDescription(const QString& fileDescription)
+{
+  m_FileDescription = fileDescription;
+  m_MetaInfoChanged = true;
+}
+
+void ModInfoRegular::setFileID(int fileID)
+{
+  m_FileID         = fileID;
   m_MetaInfoChanged = true;
 }
 

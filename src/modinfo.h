@@ -180,6 +180,18 @@ public:  // Static functions:
   static bool removeMod(unsigned int index);
 
   /**
+   * @brief Remove a mod by index.
+   *
+   * This physically deletes the specified mod from the disc and updates the ModInfo
+   * collection but not other structures that reference mods.
+   *
+   * @param index Index of the mod to delete and whether to delete the files permanently
+   *
+   * @return true if removal was successful, false otherwise.
+   */
+  static bool removeMod(unsigned int index, bool deletePermanent);
+
+  /**
    * @brief Retrieve the mod index by the mod name.
    *
    * @param name Name of the mod to look up.
@@ -288,6 +300,21 @@ public:  // IModInterface implementations / Re-declaration
    * @return the nexus ID of this mod on the repository.
    */
   virtual int nexusId() const = 0;
+
+    /**
+   * @return the domain name of this mod.
+   */
+  virtual QString domainName() const = 0;
+
+  /**
+   * @return the file description of this mod.
+   */
+  virtual QString fileDescription() const = 0;
+
+  /**
+   * @return the file ID of this mod on the repository.
+   */
+  virtual int fileID() const = 0;
 
   /**
    * @return the current version of this mod.
@@ -453,6 +480,27 @@ public:  // Mutable operations:
    * @param nexusID The new Nexus id to set.
    */
   virtual void setNexusID(int nexusID) = 0;
+
+  /**
+   * @brief Sets the domain name for this mod.
+   *
+   * @param domainName The new domain name to set.
+   */
+  virtual void setDomainName(const QString& domainName) = 0;
+
+  /**
+   * @brief Sets the file description for this mod.
+   *
+   * @param fileDescription The new file description to set.
+   */
+  virtual void setFileDescription(const QString& fileDescription) = 0;
+
+  /**
+   * @brief Sets the file id for this mod.
+   *
+   * @param fileID The new file id to set.
+   */
+  virtual void setFileID(int fileID) = 0;
 
   /**
    * @brief Sets the category id from a nexus category id. Conversion to MO id happens

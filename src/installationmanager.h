@@ -266,8 +266,10 @@ private:
   // actually perform the installation (write files to the disk, etc.), returns the
   // installation result
   //
-  InstallationResult doInstall(MOBase::GuessedValue<QString>& modName, QString gameName,
-                               int modID, const QString& version,
+  InstallationResult doInstall(MOBase::GuessedValue<QString>& modName, QString gameName, int modID, const QString& domainName,
+                               const QString& cleanModName,
+            const QString& cleanFileName, const QString& fileDescription, int fileid,
+            const QString& version,
                                const QString& newestVersion, int categoryID,
                                int fileCategoryID, const QString& repository);
 

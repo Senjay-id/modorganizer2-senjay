@@ -23,6 +23,9 @@ public:
   virtual void setNotes(const QString&) override {}
   virtual void setGameName(const QString& gameName) override {}
   virtual void setNexusID(int) override {}
+  virtual void setDomainName(const QString& domainName) override {}
+  virtual void setFileDescription(const QString& fileDescription) override {}
+  virtual void setFileID(int) override {}
   virtual void setNewestVersion(const MOBase::VersionInfo&) override {}
   virtual void ignoreUpdate(bool) override {}
   virtual void setNexusDescription(const QString&) override {}
@@ -47,6 +50,9 @@ public:
   virtual bool validated() const override { return false; }
   virtual QString gameName() const override { return ""; }
   virtual int nexusId() const override { return -1; }
+  virtual QString domainName() const override { return ""; }
+  virtual QString fileDescription() const override { return ""; }
+  virtual int fileID() const override { return 0; }
   virtual bool isForeign() const override { return true; }
   virtual QDateTime getExpires() const override { return QDateTime(); }
   virtual std::vector<QString> getIniTweaks() const override

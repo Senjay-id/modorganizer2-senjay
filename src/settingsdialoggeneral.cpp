@@ -37,6 +37,17 @@ GeneralSettingsTab::GeneralSettingsTab(Settings& s, SettingsDialog& d)
   ui->showMenubarOnAlt->setChecked(settings().interface().showMenubarOnAlt());
   ui->doubleClickPreviews->setChecked(
       settings().interface().doubleClicksOpenPreviews());
+  ui->useSplash->setChecked(settings().useSplash());
+  ui->modNameGuess->addItem("Default", 0);
+  ui->modNameGuess->addItem("Filename", 1);
+  ui->modNameGuess->addItem("Modname-Filename", 2);
+  const auto guessType = settings().interface().guessModNameType();
+  if (guessType == "Default")
+    ui->modNameGuess->setCurrentIndex(0);
+  else if (guessType == "Filename")
+    ui->modNameGuess->setCurrentIndex(1);
+  else if (guessType == "Modname-Filename")
+    ui->modNameGuess->setCurrentIndex(2);
 
   QObject::connect(ui->categoriesBtn, &QPushButton::clicked, [&] {
     onEditCategories();
@@ -82,6 +93,8 @@ void GeneralSettingsTab::update()
   settings().interface().setShowMenubarOnAlt(ui->showMenubarOnAlt->isChecked());
   settings().interface().setDoubleClicksOpenPreviews(
       ui->doubleClickPreviews->isChecked());
+  settings().setUseSplash(ui->useSplash->isChecked());
+  settings().interface().setGuessModNameType(ui->modNameGuess->currentText());
 }
 
 void GeneralSettingsTab::addLanguages()

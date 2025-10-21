@@ -4,6 +4,7 @@
 #include <QGroupBox>
 #include <QInputDialog>
 #include <QLabel>
+#include <QScrollArea>
 
 #include "filesystemutilities.h"
 #include <log.h>
@@ -773,6 +774,610 @@ void ModListViewActions::sendModsToLastConflict(const QModelIndexList& indexes) 
   }
 }
 
+void ModListViewActions::updateToNexus(const QModelIndex& index) const
+{
+  auto& settings = m_core.settings().interface();
+  MOBase::TaskDialog dlg(nullptr);
+
+  const auto r =
+      dlg.title(tr("Update to nexus"))
+          .main(tr("It seems like this is the first time your using this feature"))
+          .content(tr("This feature is still experimental, the fork author will not take any responsibility if it somehow edited your mods incorrectly.\n\n"
+            "The updater source code exists at MO2/mod_updater/update.py, MO2 only passes the metadata of the mod into a json file to be used by the script.\n\n"
+            "Please meet these requirement before proceeding\n"
+                      "1. Install 7z (installer version)\n"
+                      "2. Install python and selenium library\n"
+                      "3. Logged into nexus on microsoft edge\n"
+                      "4. You are the author or have permission to this mod\n\n"
+                      "This will zip all files inside this mod folder and "
+                      "upload it as is excluding the meta.ini file"))
+          .icon(QMessageBox::Question)
+          .button({tr("OK"), QMessageBox::Ok})
+          .remember("rememberUpdateToNexus")
+          .exec();
+
+  if (r != QMessageBox::Ok)
+    return;
+
+  if (!index.isValid()) {
+    return;
+  }
+
+  ModInfo::Ptr modInfo = ModInfo::getByIndex(index.data(ModList::IndexRole).toInt());
+
+  if (!modInfo || modInfo->isSeparator()) {
+    return;
+  }
+
+  // Create the update dialog - make it modeless
+  QDialog* dialog = new QDialog(m_parent);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setWindowTitle(tr("Update Mod: %1").arg(modInfo->name()));
+  dialog->setMinimumWidth(600);
+  // dialog->setMinimumHeight(700);
+
+  QVBoxLayout* mainLayout = new QVBoxLayout(dialog);
+
+  // File Information Group
+  QGroupBox* fileInfoGroup    = new QGroupBox(tr("File Information"), dialog);
+  QGridLayout* fileInfoLayout = new QGridLayout(fileInfoGroup);
+
+  // Filename field
+  QLabel* filenameLabel   = new QLabel(tr("File name:"), fileInfoGroup);
+  QLineEdit* filenameEdit = new QLineEdit(modInfo->name(), fileInfoGroup);
+  filenameEdit->setPlaceholderText(tr("Enter file name..."));
+  filenameEdit->setMaxLength(50);  // Added 50 character limit
+  fileInfoLayout->addWidget(filenameLabel, 0, 0);
+  fileInfoLayout->addWidget(filenameEdit, 0, 1);
+
+  // File version field
+  QLabel* versionLabel = new QLabel(tr("File Version:"), fileInfoGroup);
+  QLineEdit* versionEdit =
+      new QLineEdit(modInfo->version().displayString(1), fileInfoGroup);
+  versionEdit->setPlaceholderText(tr("e.g., 1.0.0"));
+  versionEdit->setMaxLength(50);  // Added 50 character limit
+  fileInfoLayout->addWidget(versionLabel, 1, 0);
+  fileInfoLayout->addWidget(versionEdit, 1, 1);
+
+  // File description field
+  QLabel* descriptionLabel   = new QLabel(tr("File Description:"), fileInfoGroup);
+  QTextEdit* descriptionEdit = new QTextEdit(modInfo->fileDescription(), fileInfoGroup);
+  descriptionEdit->setMaximumHeight(80);
+  descriptionEdit->setPlaceholderText(tr("Enter file description..."));
+
+  // Add character limit for description (255 characters)
+  QLabel* descriptionLimitLabel =
+      new QLabel(tr("Characters remaining: 255"), fileInfoGroup);
+  descriptionLimitLabel->setAlignment(Qt::AlignRight);
+  descriptionLimitLabel->setStyleSheet("QLabel { color: gray; font-size: 10px; }");
+
+  // Connect text changed signal to update character counter
+  auto updateDescriptionCounter = [=]() {
+    int currentLength = descriptionEdit->toPlainText().length();
+    int remaining     = 255 - currentLength;
+    descriptionLimitLabel->setText(tr("Characters remaining: %1").arg(remaining));
+
+    // Change color when approaching limit
+    if (remaining < 10) {
+      descriptionLimitLabel->setStyleSheet("QLabel { color: red; font-size: 10px; }");
+    } else if (remaining < 50) {
+      descriptionLimitLabel->setStyleSheet(
+          "QLabel { color: orange; font-size: 10px; }");
+    } else {
+      descriptionLimitLabel->setStyleSheet("QLabel { color: gray; font-size: 10px; }");
+    }
+  };
+
+  connect(descriptionEdit, &QTextEdit::textChanged, updateDescriptionCounter);
+  updateDescriptionCounter();  // Initialize the counter
+
+  fileInfoLayout->addWidget(descriptionLabel, 2, 0);
+  fileInfoLayout->addWidget(descriptionEdit, 2, 1);
+  fileInfoLayout->addWidget(descriptionLimitLabel, 3, 1);
+
+  mainLayout->addWidget(fileInfoGroup);
+
+  // Options Group
+  QGroupBox* optionsGroup    = new QGroupBox(tr("Options"), dialog);
+  QVBoxLayout* optionsLayout = new QVBoxLayout(optionsGroup);
+
+  QCheckBox* latestVersionCheck =
+      new QCheckBox(tr("This is the latest version of the mod (your main version will "
+                       "be updated automatically)"),
+                    optionsGroup);
+  latestVersionCheck->setChecked(settings.modUpdateToNXMLatestVersion());
+
+  QCheckBox* newVersionCheck = new QCheckBox(
+      tr("This is a new version of an existing file (optional)"), optionsGroup);
+  newVersionCheck->setChecked(settings.modUpdateToNXMNewVersion());
+
+  QCheckBox* removePreviousVersionCheck = new QCheckBox(
+      tr("Remove the previous version after this file has been successfully uploaded"),
+      optionsGroup);
+  removePreviousVersionCheck->setChecked(settings.modUpdateToNXMRemovePreviousVersion());
+
+  // Connect the new version checkbox to enable/disable remove previous version
+  auto updateRemovePreviousVersionState = [=]() {
+    bool isNewVersion = newVersionCheck->isChecked();
+    // removePreviousVersionCheck->setEnabled(isNewVersion);
+
+    // Visual feedback - gray out when disabled
+    if (!isNewVersion) {
+      removePreviousVersionCheck->setStyleSheet("QCheckBox { color: gray; }");
+      // Also uncheck it since it's not applicable
+      removePreviousVersionCheck->setChecked(false);
+    } else {
+      removePreviousVersionCheck->setStyleSheet("");  // Reset to default
+      removePreviousVersionCheck->setChecked(
+          true);  // Re-check if it was previously checked
+    }
+  };
+
+  // Connect the signal
+  connect(newVersionCheck, &QCheckBox::stateChanged, updateRemovePreviousVersionState);
+
+  // Initialize the state
+  updateRemovePreviousVersionState();
+
+  // Add first 3 options with spacing
+  optionsLayout->addWidget(latestVersionCheck);
+  optionsLayout->addSpacing(5);
+  optionsLayout->addWidget(newVersionCheck);
+  optionsLayout->addSpacing(5);
+  optionsLayout->addWidget(removePreviousVersionCheck);
+
+  // Add larger space between first 3 and last 4 options
+  optionsLayout->addSpacing(30);
+
+  QCheckBox* removeDownloadManagerCheck =
+      new QCheckBox(tr("Remove the 'Download with manager' button"), optionsGroup);
+  removeDownloadManagerCheck->setChecked(settings.modUpdateToNXMRemoveDownloadWithManager());
+
+  QCheckBox* setFileAsMainVortexCheck =
+      new QCheckBox(tr("Set the file as the main Vortex file"), optionsGroup);
+  setFileAsMainVortexCheck->setChecked(settings.modUpdateToNXMSetAsMainVortex());
+
+  QCheckBox* informRequirementsCheck =
+      new QCheckBox(tr("Inform downloaders of this mod's requirements before they "
+                       "attempt to download this file"),
+                    optionsGroup);
+  informRequirementsCheck->setChecked(settings.modUpdateToNXMInformDownloader());
+
+  QCheckBox* automaticSaveCheck = new QCheckBox(
+      tr("Automatically save the file after successfully uploading it"), optionsGroup);
+  automaticSaveCheck->setChecked(settings.modUpdateToNXMAutoSaveFile());
+
+  QCheckBox* updateModVersionMetaData = new QCheckBox(
+      tr("Update the current mod version to the metadata on MO2 after successfully uploading it"),
+      optionsGroup);
+  updateModVersionMetaData->setChecked(settings.modUpdateToNXMUodateCurrentModVersionToMeta());
+
+  // Add last 4 options with spacing
+  optionsLayout->addWidget(removeDownloadManagerCheck);
+  optionsLayout->addSpacing(5);
+  optionsLayout->addWidget(setFileAsMainVortexCheck);
+  optionsLayout->addSpacing(5);
+  optionsLayout->addWidget(informRequirementsCheck);
+  optionsLayout->addSpacing(30);
+  optionsLayout->addWidget(automaticSaveCheck);
+  optionsLayout->addSpacing(5);
+  optionsLayout->addWidget(updateModVersionMetaData);
+  optionsLayout->addSpacing(5);
+  optionsLayout->addStretch(1);
+
+  mainLayout->addWidget(optionsGroup);
+
+  // Changelog Group
+  QGroupBox* changelogGroup    = new QGroupBox(tr("Changelog"), dialog);
+  QVBoxLayout* changelogLayout = new QVBoxLayout(changelogGroup);
+
+  QTextEdit* changelogEdit = new QTextEdit(changelogGroup);
+  changelogEdit->setMaximumHeight(175);
+  changelogEdit->setMinimumHeight(110);
+  changelogEdit->setPlaceholderText(
+      tr("Please write one entry per line. Example:\n* Added 64-bit support\n* Added "
+         "raytracing...\n\n\nLeave it empty to not include a changelog"));
+
+  // Add line length monitoring for changelog
+  QLabel* changelogLineLimitLabel = new QLabel(tr(""), changelogGroup);
+  changelogLineLimitLabel->setAlignment(Qt::AlignRight);
+  changelogLineLimitLabel->setStyleSheet("QLabel { color: gray; font-size: 10px; }");
+
+  // Connect text changed signal to monitor line lengths
+  auto updateChangelogLineMonitor = [=]() {
+    QString text      = changelogEdit->toPlainText();
+    QStringList lines = text.split('\n');
+
+    bool hasLongLines = false;
+    int longLineCount = 0;
+
+    for (int i = 0; i < lines.size(); ++i) {
+      if (lines[i].length() > 50) {
+        hasLongLines = true;
+        longLineCount++;
+      }
+    }
+
+    if (hasLongLines) {
+      changelogLineLimitLabel->setText(
+          tr("%1 line(s) exceed 50 characters").arg(longLineCount));
+      changelogLineLimitLabel->setStyleSheet("QLabel { color: red; font-size: 10px; }");
+    } else {
+      changelogLineLimitLabel->setText(tr("All lines within 50 character limit"));
+      changelogLineLimitLabel->setStyleSheet(
+          "QLabel { color: green; font-size: 10px; }");
+    }
+  };
+
+  connect(changelogEdit, &QTextEdit::textChanged, updateChangelogLineMonitor);
+  updateChangelogLineMonitor();  // Initialize the monitor
+
+  changelogLayout->addWidget(changelogEdit);
+  changelogLayout->addWidget(changelogLineLimitLabel);
+
+  mainLayout->addWidget(changelogGroup);
+  mainLayout->addStretch(1);
+
+  // "Remember my options" checkbox at bottom left
+  QHBoxLayout* rememberLayout = new QHBoxLayout();
+  QCheckBox* rememberOptionsCheck =
+      new QCheckBox(tr("Remember my options choice"), dialog);
+  rememberOptionsCheck->setChecked(false);  // Default to unchecked for safety
+  rememberLayout->addWidget(rememberOptionsCheck);
+  rememberLayout->addStretch(1);  // Push to left
+  mainLayout->addLayout(rememberLayout);
+
+  // Function to update changelog accessibility based on automaticSaveCheck state
+  auto updateChangelogAccessibility = [=]() {
+    bool isAutosaveEnabled = automaticSaveCheck->isChecked();
+
+    // Disable/enable the changelog edit field
+    changelogEdit->setEnabled(isAutosaveEnabled);
+
+    // Also disable/enable the entire changelog group for visual consistency
+    changelogGroup->setEnabled(isAutosaveEnabled);
+
+    // Update the placeholder text to indicate why it's disabled
+    if (!isAutosaveEnabled) {
+      changelogEdit->setPlaceholderText(tr(
+          "Changelog is only available when 'Automatically save the file' is enabled"));
+      changelogLineLimitLabel->setText(tr("Enable automatic save to edit changelog"));
+      changelogLineLimitLabel->setStyleSheet(
+          "QLabel { color: gray; font-size: 10px; }");
+    } else {
+      changelogEdit->setPlaceholderText(tr(
+          "Please write one entry per line. Example:\n* Added 64-bit support\n* Added "
+          "raytracing...\n\n\nLeave it empty to not include a changelog"));
+      updateChangelogLineMonitor();  // Restore normal monitoring
+    }
+  };
+
+  // Connect the automaticSaveCheck signal to update changelog accessibility
+  connect(automaticSaveCheck, &QCheckBox::stateChanged, updateChangelogAccessibility);
+
+  // Initialize the changelog accessibility state
+  updateChangelogAccessibility();
+
+  // Buttons at the bottom
+  QDialogButtonBox* buttons =
+      new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+
+  // Style the buttons
+  QPushButton* okButton     = buttons->button(QDialogButtonBox::Ok);
+  QPushButton* cancelButton = buttons->button(QDialogButtonBox::Cancel);
+  okButton->setDefault(true);
+  okButton->setMinimumWidth(80);
+  cancelButton->setMinimumWidth(80);
+
+  mainLayout->addWidget(buttons);
+
+  // Store mod info and other needed data for the async processing
+  QString modDir     = modInfo->absolutePath();
+  QString modName    = modInfo->name();
+  QString domainName = modInfo->domainName();
+  int nexusId        = modInfo->nexusId();
+  int fileId         = modInfo->fileID();
+
+  // Connect buttons to handle the result asynchronously
+  connect(buttons, &QDialogButtonBox::accepted, dialog, [=]() {
+    // Validate character limits before accepting
+    if (filenameEdit->text().length() > 50) {
+      QMessageBox::warning(dialog, tr("Filename Too Long"),
+                           tr("Filename must be 50 characters or less."));
+      return;
+    }
+
+    if (versionEdit->text().length() > 50) {
+      QMessageBox::warning(dialog, tr("Version Too Long"),
+                           tr("File version must be 50 characters or less."));
+      return;
+    }
+
+    if (descriptionEdit->toPlainText().length() > 255) {
+      QMessageBox::warning(dialog, tr("Description Too Long"),
+                           tr("File description must be 255 characters or less."));
+      return;
+    }
+
+    // Only validate changelog if automatic save is enabled and changelog has content
+    if (automaticSaveCheck->isChecked()) {
+      QString changelogText = changelogEdit->toPlainText();
+      QStringList lines     = changelogText.split('\n');
+      QList<int> longLines;
+
+      for (int i = 0; i < lines.size(); ++i) {
+        if (lines[i].length() > 50) {
+          longLines.append(i + 1);  // +1 because line numbers start at 1 for users
+        }
+      }
+
+      if (!longLines.isEmpty()) {
+        // Convert line numbers to string list for display
+        QStringList longLineStrings;
+        for (int lineNum : longLines) {
+          longLineStrings.append(QString::number(lineNum));
+        }
+
+        QString lineNumbers;
+        if (longLineStrings.size() > 5) {
+          lineNumbers = tr("lines %1, ... (and %2 more)")
+                            .arg(longLineStrings.mid(0, 5).join(", "))
+                            .arg(longLineStrings.size() - 5);
+        } else {
+          lineNumbers = tr("lines %1").arg(longLineStrings.join(", "));
+        }
+
+        QMessageBox::warning(
+            dialog, tr("Changelog Lines Too Long"),
+            tr("The following %1 exceed the 50 character limit:\n%2\n\nPlease shorten "
+               "these lines before submitting.")
+                .arg(longLines.size() == 1 ? tr("line") : tr("lines"))
+                .arg(lineNumbers));
+        return;
+      }
+    }
+
+    if (rememberOptionsCheck->isChecked())
+    {
+      auto& _settings = const_cast<InterfaceSettings&>(m_core.settings().interface());
+      _settings.setModUpdateToNXMLatestVersion(latestVersionCheck->isChecked());
+      _settings.setModUpdateToNXMNewVersion(newVersionCheck->isChecked());
+      _settings.setModUpdateToNXMRemovePreviousVersion(removePreviousVersionCheck->isChecked());
+      _settings.setModUpdateToNXMRemoveDownloadWithManager(removeDownloadManagerCheck->isChecked());
+      _settings.setModUpdateToNXMSetAsMainVortex(setFileAsMainVortexCheck->isChecked());
+      _settings.setModUpdateToNXMInformDownloader(informRequirementsCheck->isChecked());
+      _settings.setModUpdateToNXMAutoSaveFile(automaticSaveCheck->isChecked());
+      _settings.setModUpdateToNXMUodateCurrentModVersionToMeta(updateModVersionMetaData->isChecked());
+    }
+
+    dialog->accept();
+    handleUpdateDialogAccepted(
+        modDir, modName, domainName, nexusId, fileId, filenameEdit->text(),
+        versionEdit->text(), descriptionEdit->toPlainText(),
+        changelogEdit->toPlainText(), latestVersionCheck->isChecked(),
+        newVersionCheck->isChecked(), removePreviousVersionCheck->isChecked(),
+        removeDownloadManagerCheck->isChecked(), setFileAsMainVortexCheck->isChecked(),
+        informRequirementsCheck->isChecked(), automaticSaveCheck->isChecked(),
+        updateModVersionMetaData->isChecked());
+  });
+
+  connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+
+  // Show the dialog as modeless (non-blocking)
+  dialog->show();
+}
+
+void ModListViewActions::handleUpdateDialogAccepted(
+    const QString& modDir, const QString& modName, const QString& domainName,
+    int nexusId, int fileId, const QString& filename, const QString& version,
+    const QString& description, const QString& changelog, bool isLatestVersion,
+    bool isExisting, bool removePreviousVersion, bool removeDownloadManager,
+    bool isMainVortexFile, bool informDownloaders, bool autoSave,
+    bool updateModVersionMetaData) const
+{
+  // Show a progress dialog to indicate work is starting
+  QProgressDialog* progressDialog = new QProgressDialog(m_parent);
+  progressDialog->setWindowTitle(tr("Updating Mod"));
+  progressDialog->setLabelText(tr("Preparing mod archive..."));
+  progressDialog->setRange(0, 0);  // Indeterminate progress
+  progressDialog->setCancelButton(nullptr);
+  progressDialog->show();
+
+  // Create a worker object to handle the async process
+  QObject* worker  = new QObject();
+  QString gameName = "";
+  if (domainName == "") {
+    gameName = m_core.managedGame()->gameNexusName();
+    if (gameName == "") {
+      gameName = m_core.managedGame()->gameShortName();
+      if (gameName == "")
+        gameName = m_core.managedGame()->gameName();
+    }
+  } else {
+    gameName = domainName;
+  }
+
+  // Step 1: Create archive asynchronously
+  QString modArchive = QDir(modDir).filePath("mod_archive.7z");
+  if (QFile::exists(modArchive)) {
+    QFile::remove(modArchive);
+  }
+
+  progressDialog->setLabelText(tr("Creating archive..."));
+
+  QProcess* zipProcess = new QProcess(worker);
+  zipProcess->setWorkingDirectory(modDir);
+
+  // Connect zip process signals
+  connect(
+      zipProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), worker,
+      [=](int exitCode, QProcess::ExitStatus exitStatus) {
+        if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
+          QMetaObject::invokeMethod(
+              qApp,
+              [=]() {
+                progressDialog->close();
+                progressDialog->deleteLater();
+                worker->deleteLater();
+                reportError(tr("Zipping failed with error code: %1").arg(exitCode));
+              },
+              Qt::QueuedConnection);
+          return;
+        }
+
+        // Step 2: Create JSON data (this is fast, can be done in main thread)
+        QJsonObject jsonData;
+        jsonData["gamename"]         = gameName;
+        jsonData["modid"]            = nexusId;
+        jsonData["fileid"]           = fileId;
+        jsonData["filename"]         = filename.left(50);      // Enforce 50 char limit
+        jsonData["fileversion"]      = version.left(50);       // Enforce 50 char limit
+        jsonData["filedescription"]  = description.left(255);  // Enforce 255 char limit
+        jsonData["fileabsolutepath"] = modArchive;
+        jsonData["islatestversion"]  = isLatestVersion;
+        jsonData["isexisting"]       = isExisting;
+        jsonData["isremovepreviousversion"]       = removePreviousVersion;
+        jsonData["isremovedownloadmanagerbutton"] = removeDownloadManager;
+        jsonData["ismainvortexfile"]              = isMainVortexFile;
+        jsonData["isinformdownloaders"]           = informDownloaders;
+        jsonData["autosavefile"]                  = autoSave;
+        jsonData["changelog"]                     = changelog;
+
+        QJsonDocument jsonDoc(jsonData);
+
+        // Get path to mo2 appdata
+        QString baseDir = m_core.basePath();
+        QDir dir(baseDir);
+        baseDir = dir.absolutePath();
+        QString appDataDir =
+            QProcessEnvironment::systemEnvironment().value("LOCALAPPDATA");
+        QString filePath = appDataDir + "/ModOrganizer/mod_update_cache.json";
+
+        // Write JSON file
+        QFile jsonFile(filePath);
+        if (!jsonFile.open(QIODevice::WriteOnly)) {
+          QMetaObject::invokeMethod(
+              qApp,
+              [=]() {
+                progressDialog->close();
+                progressDialog->deleteLater();
+                worker->deleteLater();
+                reportError(tr("Failed to write JSON file to: %1").arg(filePath));
+              },
+              Qt::QueuedConnection);
+          return;
+        }
+
+        jsonFile.write(jsonDoc.toJson(QJsonDocument::Indented));
+        jsonFile.close();
+        log::info("JSON file written to: {}", filePath);
+
+        // Step 3: Run Python script asynchronously
+        progressDialog->setLabelText(tr("Running update script..."));
+
+        QString targetDir = QCoreApplication::applicationDirPath() + "/mod_updater";
+        QProcess* pythonProcess = new QProcess(worker);
+        pythonProcess->setWorkingDirectory(targetDir);
+
+        // Connect to capture Python's stdout and display as QInfo
+        connect(pythonProcess, &QProcess::readyReadStandardOutput, worker, [=]() {
+          QString output =
+              QString::fromLocal8Bit(pythonProcess->readAllStandardOutput());
+          log::debug("[Python]: {}", output);
+        });
+
+        // Also capture stderr for error messages
+        connect(pythonProcess, &QProcess::readyReadStandardError, worker, [=]() {
+          QString errorOutput =
+              QString::fromLocal8Bit(pythonProcess->readAllStandardError());
+          log::error("[Python Error]: {}", errorOutput);
+        });
+
+        connect(
+            pythonProcess,
+            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), worker,
+            [=](int exitCode, QProcess::ExitStatus exitStatus) {
+              QMetaObject::invokeMethod(
+                  qApp,
+                  [=]() {
+                    progressDialog->close();
+                    progressDialog->deleteLater();
+                    worker->deleteLater();
+
+                    if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
+                      log::info("Successfully updated mod: {}", modName);
+                      QMessageBox::information(
+                          m_parent, tr("Success"),
+                          tr("Mod '%1' has been successfully updated.").arg(modName));
+                      if (updateModVersionMetaData)
+                      {
+                        QString metaPath = modDir + "/meta.ini";
+                        if (QFile::exists(metaPath)) {
+                          QSettings metaFile(metaPath, QSettings::IniFormat);
+                          if (metaFile.status() == QSettings::NoError) {
+                            metaFile.setValue("newestVersion", version.left(50));
+                            metaFile.setValue("version", version.left(50));
+                            m_core.refresh();
+                          }
+                        } else {
+                          log::error("Missing meta file at {}", metaPath);
+                        }
+                      }
+                    } else {
+                      QString errorMsg =
+                          tr("Python script failed with exit code: %1").arg(exitCode);
+                      if (exitStatus != QProcess::NormalExit) {
+                        errorMsg = tr("Python script crashed");
+                      }
+                      QString stderrOutput =
+                          QString::fromLocal8Bit(pythonProcess->readAllStandardError());
+                      if (!stderrOutput.isEmpty()) {
+                        errorMsg += "\n" + stderrOutput;
+                      }
+                      reportError(errorMsg);
+                    }
+                  },
+                  Qt::QueuedConnection);
+            });
+
+        connect(pythonProcess, &QProcess::errorOccurred, worker,
+                [=](QProcess::ProcessError error) {
+                  QMetaObject::invokeMethod(
+                      qApp,
+                      [=]() {
+                        progressDialog->close();
+                        progressDialog->deleteLater();
+                        worker->deleteLater();
+                        reportError(tr("Failed to start Python process: %1")
+                                        .arg(pythonProcess->errorString()));
+                      },
+                      Qt::QueuedConnection);
+                });
+
+        // Start the Python process
+        pythonProcess->start("py", QStringList() << "update.py");
+      });
+
+  connect(
+      zipProcess, &QProcess::errorOccurred, worker, [=](QProcess::ProcessError error) {
+        QMetaObject::invokeMethod(
+            qApp,
+            [=]() {
+              progressDialog->close();
+              progressDialog->deleteLater();
+              worker->deleteLater();
+              reportError(
+                  tr("Failed to start zip process: %1").arg(zipProcess->errorString()));
+            },
+            Qt::QueuedConnection);
+      });
+
+  // Start the zip process - use 7z with proper arguments
+  QStringList zipArgs;
+  zipArgs << "a" << "-x!meta.ini" << "mod_archive.7z" << "*";
+  zipProcess->start("7z", zipArgs);
+}
+
 void ModListViewActions::renameMod(const QModelIndex& index) const
 {
   try {
@@ -812,22 +1417,37 @@ void ModListViewActions::removeMods(const QModelIndexList& indices) const
             ModInfo::getByIndex(idx.data(ModList::IndexRole).toInt())->name());
         ++i;
       }
-      if (QMessageBox::question(
-              m_parent, tr("Confirm"),
-              tr("Remove the following mods?<br><ul>%1</ul>").arg(mods),
-              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-        // use mod names instead of indexes because those become invalid during the
-        // removal
+      const auto r =
+          MOBase::TaskDialog(nullptr, tr("Delete multiple mods"))
+              .main(tr("Remove the following mods?<br><ul>%1</ul>").arg(mods))
+              .icon(QMessageBox::Question)
+              .button({tr("Move to the Recycle Bin"), QMessageBox::Yes})
+              .button({tr("Delete permanently"), QMessageBox::Ok})
+              .button({tr("Cancel"), QMessageBox::Cancel})
+              .remember("rememberMultipleModsRowDeletion")
+              .exec();
+
+      switch (r) {
+      case QMessageBox::Yes:
         DownloadManager::startDisableDirWatcher();
         for (QString name : modNames) {
           m_core.modList()->removeRowForce(ModInfo::getIndex(name), QModelIndex());
         }
         DownloadManager::endDisableDirWatcher();
+        break;
+      case QMessageBox::Ok:
+        DownloadManager::startDisableDirWatcher();
+        for (QString name : modNames) {
+          m_core.modList()->removeRowForce(ModInfo::getIndex(name), QModelIndex(),
+                                           true);
+        }
+        DownloadManager::endDisableDirWatcher();
+        break;
       }
-    } else if (!indices.isEmpty()) {
+    } else if (!indices.isEmpty())
       m_core.modList()->removeRow(indices[0].data(ModList::IndexRole).toInt(),
                                   QModelIndex());
-    }
+
     m_view->updateModCount();
     m_pluginView->updatePluginCount();
   } catch (const std::exception& e) {

@@ -36,6 +36,7 @@ WorkaroundsSettingsTab::WorkaroundsSettingsTab(Settings& s, SettingsDialog& d)
   m_ExecutableBlacklist = settings().executablesBlacklist();
   m_SkipFileSuffixes    = settings().skipFileSuffixes();
   m_SkipDirectories     = settings().skipDirectories();
+  m_ExcludeBSAArchiveParsing = settings().excludeBSAArchiveParsing();
 
   QObject::connect(ui->bsaDateBtn, &QPushButton::clicked, [&] {
     on_bsaDateBtn_clicked();
@@ -48,6 +49,9 @@ WorkaroundsSettingsTab::WorkaroundsSettingsTab(Settings& s, SettingsDialog& d)
   });
   QObject::connect(ui->skipDirectoriesBtn, &QPushButton::clicked, [&] {
     on_skipDirectoriesBtn_clicked();
+  });
+  QObject::connect(ui->excludeBSAArchiveParsingBtn, &QPushButton::clicked, [&] {
+    on_excludeBSAArchiveParsingBtn_clicked();
   });
   QObject::connect(ui->resetGeometryBtn, &QPushButton::clicked, [&] {
     on_resetGeometryBtn_clicked();
@@ -79,6 +83,7 @@ void WorkaroundsSettingsTab::update()
   settings().setExecutablesBlacklist(m_ExecutableBlacklist);
   settings().setSkipFileSuffixes(m_SkipFileSuffixes);
   settings().setSkipDirectories(m_SkipDirectories);
+  settings().setExcludeBSAArchiveParsing(m_ExcludeBSAArchiveParsing);
 }
 
 bool WorkaroundsSettingsTab::changeBlacklistNow(QWidget* parent, Settings& settings)
@@ -189,6 +194,36 @@ WorkaroundsSettingsTab::changeSkipDirectories(QWidget* parent,
   return directories;
 }
 
+std::optional<QStringList>
+WorkaroundsSettingsTab::changeExcludeBSAArchiveParsing(QWidget* parent,
+                                              const QStringList& current)
+{
+  bool ok = false;
+
+  QString result = QInputDialog::getMultiLineText(
+      parent, QObject::tr("Exclude BSA Archives"),
+      QObject::tr(
+          "Enter one directory per line to be excluded from BSA parsing.\n\n"
+          "Example:\n"
+          "  TaleOfTwoWastelands - Main.bsa\n"
+          "  YUPTTW - Main.bsa"),
+      current.join("\n"), &ok);
+
+  if (!ok) {
+    return {};
+  }
+
+  QStringList archives;
+  for (auto& dir : result.split("\n")) {
+    auto trimmed = dir.trimmed();
+    if (!trimmed.isEmpty()) {
+      archives << trimmed;
+    }
+  }
+
+  return archives;
+}
+
 void WorkaroundsSettingsTab::on_execBlacklistBtn_clicked()
 {
   if (auto s = changeBlacklistLater(parentWidget(), m_ExecutableBlacklist)) {
@@ -207,6 +242,13 @@ void WorkaroundsSettingsTab::on_skipDirectoriesBtn_clicked()
 {
   if (auto s = changeSkipDirectories(parentWidget(), m_SkipDirectories)) {
     m_SkipDirectories = *s;
+  }
+}
+
+void WorkaroundsSettingsTab::on_excludeBSAArchiveParsingBtn_clicked()
+{
+  if (auto s = changeExcludeBSAArchiveParsing(parentWidget(), m_ExcludeBSAArchiveParsing)) {
+    m_ExcludeBSAArchiveParsing = *s;
   }
 }
 

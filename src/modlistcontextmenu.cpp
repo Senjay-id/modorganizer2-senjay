@@ -539,6 +539,11 @@ void ModListContextMenu::addRegularActions(ModInfo::Ptr mod)
     addSeparator();
   }
 
+  if (true) // dont forget make a condition whether your in dev mod
+    addAction(tr("Update to Nexus"), [=]() {
+      m_actions.updateToNexus(m_index);
+    });
+
   if (mod->nexusId() > 0 && Settings::instance().nexus().endorsementIntegration()) {
     switch (mod->endorsedState()) {
     case EndorsedState::ENDORSED_TRUE: {
