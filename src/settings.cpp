@@ -246,7 +246,7 @@ void Settings::setProfileArchiveInvalidation(bool b)
 
 bool Settings::useSplash() const
 {
-  return get<bool>(m_Settings, "Settings", "use_splash", false);
+  return get<bool>(m_Settings, "Settings", "use_splash", true);
 }
 
 void Settings::setUseSplash(bool b)
@@ -2459,7 +2459,7 @@ void InterfaceSettings::setDoubleClicksOpenPreviews(bool b)
 
 QString InterfaceSettings::guessModNameType() const
 {
-  return get<QString>(m_Settings, "Settings", "modname_guess", "Default");
+  return get<QString>(m_Settings, "Settings", "modname_guess", "Filename");
 }
 
 void InterfaceSettings::setGuessModNameType(QString m)

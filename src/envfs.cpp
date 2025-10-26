@@ -1,6 +1,7 @@
 #include "envfs.h"
 #include "env.h"
 #include "shared/util.h"
+#include "settings.h"
 #include <log.h>
 #include <utility.h>
 
@@ -243,6 +244,27 @@ void forEachEntryImpl(void* cx, HandleCloserThread& hc,
     PFILE_DIRECTORY_INFORMATION DirInfo;
   };
 
+  static const QStringList skipFileSuffixes = Settings::instance().skipFileSuffixes();
+  static const QStringList skipDirectories  = Settings::instance().skipDirectories();
+
+  static const std::vector<std::wstring> skipDirs = [&]() {
+    std::vector<std::wstring> result;
+    result.reserve(skipDirectories.size());
+    for (const QString& dir : skipDirectories) {
+      result.push_back(dir.toStdWString());
+    }
+    return result;
+  }();
+
+  static const std::vector<std::wstring> skipSuffixes = [&]() {
+    std::vector<std::wstring> result;
+    result.reserve(skipFileSuffixes.size());
+    for (const QString& suffix : skipFileSuffixes) {
+      result.push_back(suffix.toStdWString());
+    }
+    return result;
+  }();
+
   for (;;) {
     status =
         NtQueryDirectoryFile(oa.RootDirectory, NULL, NULL, NULL, &iosb, buffer,
@@ -273,6 +295,35 @@ void forEachEntryImpl(void* cx, HandleCloserThread& hc,
       return false;
     };
 
+    auto shouldSkipDir = [&](const UNICODE_STRING* name) {
+      if (name->Buffer && name->Length > 0) {
+        std::wstring dirName(name->Buffer, name->Length / sizeof(wchar_t));
+
+        // Check if this directory matches any in skipDirectories
+        for (const auto& skipDir : skipDirs) {
+          if (dirName == skipDir) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    auto shouldSkipFile = [&](const UNICODE_STRING* name) {
+      if (name->Buffer && name->Length > 0) {
+        std::wstring fileName(name->Buffer, name->Length / sizeof(wchar_t));
+
+        // Check if file has any of the skip suffixes
+        for (const auto& suffix : skipSuffixes) {
+          if (fileName.size() >= suffix.size() &&
+              std::equal(suffix.rbegin(), suffix.rend(), fileName.rbegin())) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     std::size_t count = 0;
 
     for (;;) {
@@ -286,18 +337,25 @@ void forEachEntryImpl(void* cx, HandleCloserThread& hc,
         ObjectName.MaximumLength = ObjectName.Length;
 
         if (DirInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-          if (dirStartF && dirEndF) {
-            dirStartF(cx, toStringView(&oa));
-            forEachEntryImpl(cx, hc, buffers, &oa, depth + 1, dirStartF, dirEndF,
-                             fileF);
-            dirEndF(cx, toStringView(&oa));
+          // Skip directories in skipDirectories list
+          if (!shouldSkipDir(&ObjectName)) {
+            if (dirStartF && dirEndF) {
+              dirStartF(cx, toStringView(&oa));
+              forEachEntryImpl(cx, hc, buffers, &oa, depth + 1, dirStartF, dirEndF,
+                               fileF);
+              dirEndF(cx, toStringView(&oa));
+            }
           }
+          // else: skip the directory entirely
         } else {
-          FILETIME ft;
-          ft.dwLowDateTime  = DirInfo->LastWriteTime.LowPart;
-          ft.dwHighDateTime = DirInfo->LastWriteTime.HighPart;
+          // Skip files with suffixes in skipFileSuffixes list
+          if (!shouldSkipFile(&ObjectName)) {
+            FILETIME ft;
+            ft.dwLowDateTime  = DirInfo->LastWriteTime.LowPart;
+            ft.dwHighDateTime = DirInfo->LastWriteTime.HighPart;
 
-          fileF(cx, toStringView(&oa), ft, DirInfo->AllocationSize.QuadPart);
+            fileF(cx, toStringView(&oa), ft, DirInfo->AllocationSize.QuadPart);
+          }
         }
       }
 

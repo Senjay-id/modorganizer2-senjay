@@ -641,7 +641,7 @@ void MainWindow::updateWindowTitle(const APIUserAccount& user)
   //"\xe2\x80\x93" is an "em dash", a longer "-"
   QString title =
       QString("%1 \xe2\x80\x93 Mod Organizer v%2")
-          .arg(m_OrganizerCore.managedGame()->displayGameName(), "2.5.3b2-SE1.0.1");
+          .arg(m_OrganizerCore.managedGame()->displayGameName(), "2.5.3b2-SE1.0.2");
 
   if (!user.name().isEmpty()) {
     const QString premium = (user.type() == APIUserAccountTypes::Premium ? "*" : "");

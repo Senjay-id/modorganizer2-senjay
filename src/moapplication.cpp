@@ -708,6 +708,16 @@ QString MOSplash::getSplashPath(const Settings& settings, const QString& dataPat
     return {};
   }
 
+  // try splash from game data directory
+  const QDir& gamedataDir      = game->dataDirectory();
+  const QString gamedataSplash = gamedataDir.filePath("mo2splash.png");
+  if (QFile::exists(gamedataSplash)) {
+    QImage image(gamedataSplash);
+    if (!image.isNull()) {
+      return gamedataSplash;
+    }
+  }
+
   // try splash from instance directory
   const QString splashPath = dataPath + "/splash.png";
   if (QFile::exists(dataPath + "/splash.png")) {
@@ -724,6 +734,15 @@ QString MOSplash::getSplashPath(const Settings& settings, const QString& dataPat
     if (!image.isNull()) {
       image.save(splashPath);
       return pluginSplash;
+    }
+  }
+
+  // try splash from mo2 install directory
+  QString mo2DirSplash = QCoreApplication::applicationDirPath() + "/mo2splash.png";
+  if (QFile::exists(mo2DirSplash)) {
+    QImage image(mo2DirSplash);
+    if (!image.isNull()) {
+      return mo2DirSplash;
     }
   }
 
