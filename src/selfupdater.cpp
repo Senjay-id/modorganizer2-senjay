@@ -87,6 +87,7 @@ void SelfUpdater::setPluginContainer(PluginContainer* pluginContainer)
 
 void SelfUpdater::testForUpdate(const Settings& settings)
 {
+  return;
   if (settings.network().offlineMode()) {
     log::debug("not checking for updates, in offline mode");
     return;

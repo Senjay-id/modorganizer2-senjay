@@ -2120,105 +2120,170 @@ p, li { white-space: pre-wrap; }
              </layout>
             </widget>
            </item>
-           <item>
-            <widget class="QWidget" name="widget_usvfs" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QPushButton" name="execBlacklistBtn">
-                <property name="toolTip">
-                 <string>Add executables to the blacklist to prevent them from
-accessing the virtual file system. This is useful to prevent
-unintended programs from being hooked. Hooking unintended
-programs may affect the execution of these programs or the
-programs you are intentionally running.</string>
-                </property>
-                <property name="whatsThis">
-                 <string>Add executables to the blacklist to prevent them from accessing the virtual file system.  This is useful to prevent unintended programs from being hooked.  Hooking unintended programs may affect the execution of these programs or the programs you are intentionally running.</string>
-                </property>
-                <property name="text">
-                 <string>Executables Blacklist</string>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="skipFileSuffixBtn">
-                <property name="toolTip">
-                 <string>Files to skip or ignore from the virtual file system.</string>
-                </property>
-                <property name="whatsThis">
-                 <string>Files to skip or ignore from the virtual file system.</string>
-                </property>
-                <property name="text">
-                 <string>Skip File Suffixes</string>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="skipDirectoriesBtn">
-                <property name="toolTip">
-                 <string>Directories to skip or ignore from the virtual file system.</string>
-                </property>
-                <property name="whatsThis">
-                 <string>Directories to skip or ignore from the virtual file system.</string>
-                </property>
-                <property name="text">
-                 <string>Skip Directories</string>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-                <widget class="QPushButton" name="excludeBSAArchiveParsingBtn">
-                  <property name="toolTip">
-                    <string>Archives to exclude from BSA parsing.</string>
+            <item>
+              <widget class="QWidget" name="widget_usvfs" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                  <property name="leftMargin">
+                    <number>0</number>
                   </property>
-                  <property name="whatsThis">
-                    <string>Archives to exclude from BSA parsing.</string>
+                  <property name="topMargin">
+                    <number>0</number>
                   </property>
-                  <property name="text">
-                    <string>Exclude BSA Archve Parsing</string>
+                  <property name="rightMargin">
+                    <number>0</number>
                   </property>
-                  <property name="autoDefault">
-                    <bool>false</bool>
+                  <property name="bottomMargin">
+                    <number>0</number>
                   </property>
-                </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </item>
+                  <item>
+                    <widget class="QPushButton" name="execBlacklistBtn">
+                      <property name="toolTip">
+                        <string>
+                          Add executables to the blacklist to prevent them from
+                          accessing the virtual file system. This is useful to prevent
+                          unintended programs from being hooked. Hooking unintended
+                          programs may affect the execution of these programs or the
+                          programs you are intentionally running.
+                        </string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>Add executables to the blacklist to prevent them from accessing the virtual file system.  This is useful to prevent unintended programs from being hooked.  Hooking unintended programs may affect the execution of these programs or the programs you are intentionally running.</string>
+                      </property>
+                      <property name="text">
+                        <string>Executables Blacklist</string>
+                      </property>
+                      <property name="autoDefault">
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="skipFileSuffixBtn">
+                      <property name="toolTip">
+                        <string>Files to skip or ignore from the virtual file system.</string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>Files to skip or ignore from the virtual file system.</string>
+                      </property>
+                      <property name="text">
+                        <string>Skip File Suffixes</string>
+                      </property>
+                      <property name="autoDefault">
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="skipDirectoriesBtn">
+                      <property name="toolTip">
+                        <string>Directories to skip or ignore from the virtual file system.</string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>Directories to skip or ignore from the virtual file system.</string>
+                      </property>
+                      <property name="text">
+                        <string>Skip Directories</string>
+                      </property>
+                      <property name="autoDefault">
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="skipFileSuffixWindowBtn">
+                      <property name="toolTip">
+                        <string>Files to skip or ignore from the virtual file system on MO2 window.</string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>Files to skip or ignore from the virtual file system on MO2 window.</string>
+                      </property>
+                      <property name="text">
+                        <string>Skip File Suffixes on Window</string>
+                      </property>
+                      <property name="autoDefault">
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QPushButton" name="skipDirectoriesWindowBtn">
+                      <property name="toolTip">
+                        <string>Directories to skip or ignore from the virtual file system on MO2 window.</string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>Directories to skip or ignore from the virtual file system on MO2 window.</string>
+                      </property>
+                      <property name="text">
+                        <string>Skip Directories on Window</string>
+                      </property>
+                      <property name="autoDefault">
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="horizontalSpacer">
+                      <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                        <size>
+                          <width>40</width>
+                          <height>20</height>
+                        </size>
+                      </property>
+                    </spacer>
+                  </item>
+                </layout>
+              </widget>
+            </item>
+            <item>
+              <widget class="QWidget" name="widget_bsa" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_bsa">
+                  <property name="leftMargin">
+                    <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                    <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                    <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                    <number>0</number>
+                  </property>
+                  <item>
+                    <widget class="QPushButton" name="excludeBSAArchiveParsingBtn">
+                      <property name="toolTip">
+                        <string>Archives to exclude from BSA parsing.</string>
+                      </property>
+                      <property name="whatsThis">
+                        <string>Archives to exclude from BSA parsing.</string>
+                      </property>
+                      <property name="text">
+                        <string>Exclude BSA Archive Parsing</string>
+                      </property>
+                      <property name="autoDefault">
+                        <bool>false</bool>
+                      </property>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="horizontalSpacer_bsa">
+                      <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                        <size>
+                          <width>40</width>
+                          <height>20</height>
+                        </size>
+                      </property>
+                    </spacer>
+                  </item>
+                </layout>
+              </widget>
+            </item>
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">

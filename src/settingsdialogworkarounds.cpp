@@ -36,6 +36,8 @@ WorkaroundsSettingsTab::WorkaroundsSettingsTab(Settings& s, SettingsDialog& d)
   m_ExecutableBlacklist = settings().executablesBlacklist();
   m_SkipFileSuffixes    = settings().skipFileSuffixes();
   m_SkipDirectories     = settings().skipDirectories();
+  m_SkipFileSuffixesWindow         = settings().skipFileSuffixesWindow();
+  m_SkipDirectoriesWindow          = settings().skipDirectoriesWindow();
   m_ExcludeBSAArchiveParsing = settings().excludeBSAArchiveParsing();
 
   QObject::connect(ui->bsaDateBtn, &QPushButton::clicked, [&] {
@@ -49,6 +51,12 @@ WorkaroundsSettingsTab::WorkaroundsSettingsTab(Settings& s, SettingsDialog& d)
   });
   QObject::connect(ui->skipDirectoriesBtn, &QPushButton::clicked, [&] {
     on_skipDirectoriesBtn_clicked();
+  });
+  QObject::connect(ui->skipFileSuffixWindowBtn, &QPushButton::clicked, [&] {
+    on_skipFileSuffixWindowBtn_clicked();
+  });
+  QObject::connect(ui->skipDirectoriesWindowBtn, &QPushButton::clicked, [&] {
+    on_skipDirectoriesWindowBtn_clicked();
   });
   QObject::connect(ui->excludeBSAArchiveParsingBtn, &QPushButton::clicked, [&] {
     on_excludeBSAArchiveParsingBtn_clicked();
@@ -83,6 +91,8 @@ void WorkaroundsSettingsTab::update()
   settings().setExecutablesBlacklist(m_ExecutableBlacklist);
   settings().setSkipFileSuffixes(m_SkipFileSuffixes);
   settings().setSkipDirectories(m_SkipDirectories);
+  settings().setSkipFileSuffixesWindow(m_SkipFileSuffixesWindow);
+  settings().setSkipDirectoriesWindow(m_SkipDirectoriesWindow);
   settings().setExcludeBSAArchiveParsing(m_ExcludeBSAArchiveParsing);
 }
 
@@ -195,6 +205,72 @@ WorkaroundsSettingsTab::changeSkipDirectories(QWidget* parent,
 }
 
 std::optional<QStringList>
+WorkaroundsSettingsTab::changeSkipFileSuffixesWindow(QWidget* parent,
+                                               const QStringList& current)
+{
+  bool ok = false;
+
+  QString result = QInputDialog::getMultiLineText(
+      parent, QObject::tr("Skip File Suffixes Window"),
+      QObject::tr(
+          "Enter one file suffix per line to be skipped / ignored from the virtual "
+          "file system on MO2 Window.\n"
+          "Not to be confused with file extensions, file suffixes are simply how the "
+          "filename ends.\n\n"
+          "Example:\n"
+          "  .txt - Would skip all files that end with .txt, <any text>.txt\n"
+          "  some_file.txt - Would skip all files that end with some_file.txt, <any "
+          "text>some_file.txt"),
+      current.join("\n"), &ok);
+
+  if (!ok) {
+    return {};
+  }
+
+  QStringList fileSuffixes;
+  for (auto& suffix : result.split("\n")) {
+    auto trimmed = suffix.trimmed();
+    if (!trimmed.isEmpty()) {
+      fileSuffixes << trimmed;
+    }
+  }
+
+  return fileSuffixes;
+}
+
+std::optional<QStringList>
+WorkaroundsSettingsTab::changeSkipDirectoriesWindow(QWidget* parent,
+                                              const QStringList& current)
+{
+  bool ok = false;
+
+  QString result = QInputDialog::getMultiLineText(
+      parent, QObject::tr("Skip Directories Window"),
+      QObject::tr(
+          "Enter one directory per line to be skipped / ignored from the virtual "
+          "file system on MO2 window.\n\n"
+          "Example:\n"
+          "  .git\n"
+          "  CalienteTools\n\n"
+          "  instructions"),
+      current.join("\n"), &ok);
+
+  if (!ok) {
+    return {};
+  }
+
+  QStringList directories;
+  for (auto& dir : result.split("\n")) {
+    auto trimmed = dir.trimmed();
+    if (!trimmed.isEmpty()) {
+      directories << trimmed;
+    }
+  }
+
+  return directories;
+}
+
+std::optional<QStringList>
 WorkaroundsSettingsTab::changeExcludeBSAArchiveParsing(QWidget* parent,
                                               const QStringList& current)
 {
@@ -242,6 +318,20 @@ void WorkaroundsSettingsTab::on_skipDirectoriesBtn_clicked()
 {
   if (auto s = changeSkipDirectories(parentWidget(), m_SkipDirectories)) {
     m_SkipDirectories = *s;
+  }
+}
+
+void WorkaroundsSettingsTab::on_skipFileSuffixWindowBtn_clicked()
+{
+  if (auto s = changeSkipFileSuffixesWindow(parentWidget(), m_SkipFileSuffixesWindow)) {
+    m_SkipFileSuffixesWindow = *s;
+  }
+}
+
+void WorkaroundsSettingsTab::on_skipDirectoriesWindowBtn_clicked()
+{
+  if (auto s = changeSkipDirectoriesWindow(parentWidget(), m_SkipDirectoriesWindow)) {
+    m_SkipDirectoriesWindow = *s;
   }
 }
 

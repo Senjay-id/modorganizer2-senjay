@@ -832,6 +832,12 @@ public:
   QStringList skipDirectories() const;
   void setSkipDirectories(const QStringList& s);
 
+  QStringList skipFileSuffixesWindow() const;
+  void setSkipFileSuffixesWindow(const QStringList& s);
+
+  QStringList skipDirectoriesWindow() const;
+  void setSkipDirectoriesWindow(const QStringList& s);
+
   // Exclude BSA archives from being parsed 
   //
   QStringList excludeBSAArchiveParsing() const;

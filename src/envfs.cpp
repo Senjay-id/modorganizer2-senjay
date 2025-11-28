@@ -244,13 +244,13 @@ void forEachEntryImpl(void* cx, HandleCloserThread& hc,
     PFILE_DIRECTORY_INFORMATION DirInfo;
   };
 
-  static const QStringList skipFileSuffixes = Settings::instance().skipFileSuffixes();
-  static const QStringList skipDirectories  = Settings::instance().skipDirectories();
+  static const QStringList skipFileSuffixesWindow = Settings::instance().skipFileSuffixesWindow();
+  static const QStringList skipDirectoriesWindow  = Settings::instance().skipDirectoriesWindow();
 
   static const std::vector<std::wstring> skipDirs = [&]() {
     std::vector<std::wstring> result;
-    result.reserve(skipDirectories.size());
-    for (const QString& dir : skipDirectories) {
+    result.reserve(skipDirectoriesWindow.size());
+    for (const QString& dir : skipDirectoriesWindow) {
       result.push_back(dir.toStdWString());
     }
     return result;
@@ -258,8 +258,8 @@ void forEachEntryImpl(void* cx, HandleCloserThread& hc,
 
   static const std::vector<std::wstring> skipSuffixes = [&]() {
     std::vector<std::wstring> result;
-    result.reserve(skipFileSuffixes.size());
-    for (const QString& suffix : skipFileSuffixes) {
+    result.reserve(skipFileSuffixesWindow.size());
+    for (const QString& suffix : skipFileSuffixesWindow) {
       result.push_back(suffix.toStdWString());
     }
     return result;

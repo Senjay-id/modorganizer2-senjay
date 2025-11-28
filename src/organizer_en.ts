@@ -5468,16 +5468,6 @@ Please meet these requirement before proceeding
 4. You are the author or have permission to this mod
 
 This will zip all files inside this mod folder and upload it as is excluding the meta.ini file</source>
-        <oldsource>This feature is still experimental, the fork author will not take any responsibility if it somehow edited your mods incorrectly.
-The updater source code exists at MO2/mod_updater/update.py, MO2 only passes the metadata of the mod into a json file to be used by the script.
-
-Please meet these requirement before proceeding
-1. Install 7z (installer version)
-2. Install python and selenium library
-3. Logged into nexus on microsoft edge
-4. You are the author or have permission to this mod
-
-This will zip all files inside this mod folder and upload it as is excluding the meta.ini file</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6434,18 +6424,18 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugincontainer.cpp" line="1213"/>
+        <location filename="plugincontainer.cpp" line="1268"/>
         <source>Some plugins could not be loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugincontainer.cpp" line="1216"/>
-        <location filename="plugincontainer.cpp" line="1236"/>
+        <location filename="plugincontainer.cpp" line="1271"/>
+        <location filename="plugincontainer.cpp" line="1291"/>
         <source>Description missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="plugincontainer.cpp" line="1226"/>
+        <location filename="plugincontainer.cpp" line="1281"/>
         <source>The following plugins could not be loaded. The reason may be missing dependencies (i.e. python) or an outdated version:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7493,7 +7483,7 @@ p, li { white-space: pre-wrap; }
         <location filename="createinstancedialogpages.cpp" line="724"/>
         <location filename="settingsdialognexus.cpp" line="270"/>
         <location filename="settingsdialognexus.cpp" line="277"/>
-        <location filename="settingsdialogworkarounds.cpp" line="273"/>
+        <location filename="settingsdialogworkarounds.cpp" line="363"/>
         <location filename="spawn.cpp" line="179"/>
         <location filename="spawn.cpp" line="203"/>
         <location filename="spawn.cpp" line="278"/>
@@ -8083,19 +8073,19 @@ This program is known to cause issues with Mod Organizer, such as freezing or bl
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settings.cpp" line="1454"/>
-        <location filename="settings.cpp" line="1478"/>
-        <location filename="settings.cpp" line="1526"/>
+        <location filename="settings.cpp" line="1482"/>
+        <location filename="settings.cpp" line="1506"/>
+        <location filename="settings.cpp" line="1554"/>
         <source>attempt to store setting for unknown plugin &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settings.cpp" line="2024"/>
+        <location filename="settings.cpp" line="2052"/>
         <source>Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settings.cpp" line="2025"/>
+        <location filename="settings.cpp" line="2053"/>
         <source>Failed to start the helper application: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8250,12 +8240,12 @@ This program is known to cause issues with Mod Organizer, such as freezing or bl
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="107"/>
+        <location filename="settingsdialogworkarounds.cpp" line="117"/>
         <source>Executables Blacklist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="108"/>
+        <location filename="settingsdialogworkarounds.cpp" line="118"/>
         <source>Enter one executable per line to be blacklisted from the virtual file system.
 Mods and other virtualized files will not be visible to these executables and
 any executables launched by them.
@@ -8266,12 +8256,12 @@ Example:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="139"/>
+        <location filename="settingsdialogworkarounds.cpp" line="149"/>
         <source>Skip File Suffixes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="140"/>
+        <location filename="settingsdialogworkarounds.cpp" line="150"/>
         <source>Enter one file suffix per line to be skipped / ignored from the virtual file system.
 Not to be confused with file extensions, file suffixes are simply how the filename ends.
 
@@ -8281,12 +8271,12 @@ Example:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="173"/>
+        <location filename="settingsdialogworkarounds.cpp" line="183"/>
         <source>Skip Directories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="174"/>
+        <location filename="settingsdialogworkarounds.cpp" line="184"/>
         <source>Enter one directory per line to be skipped / ignored from the virtual file system.
 
 Example:
@@ -8295,12 +8285,48 @@ Example:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="204"/>
+        <location filename="settingsdialogworkarounds.cpp" line="214"/>
+        <source>Skip File Suffixes Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialogworkarounds.cpp" line="215"/>
+        <source>Enter one file suffix per line to be skipped / ignored from the virtual file system on MO2 Window.
+Not to be confused with file extensions, file suffixes are simply how the filename ends.
+
+Example:
+  .txt - Would skip all files that end with .txt, &lt;any text&gt;.txt
+  some_file.txt - Would skip all files that end with some_file.txt, &lt;any text&gt;some_file.txt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialogworkarounds.cpp" line="248"/>
+        <source>Skip Directories Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialogworkarounds.cpp" line="249"/>
+        <source>Enter one directory per line to be skipped / ignored from the virtual file system on MO2 window.
+
+Example:
+  .git
+  CalienteTools
+
+  instructions</source>
+        <oldsource>Enter one directory per line to be skipped / ignored from the virtual file system on MO2 window.
+
+Example:
+  .git
+  instructions</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialogworkarounds.cpp" line="280"/>
         <source>Exclude BSA Archives</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="205"/>
+        <location filename="settingsdialogworkarounds.cpp" line="281"/>
         <source>Enter one directory per line to be excluded from BSA parsing.
 
 Example:
@@ -8309,14 +8335,14 @@ Example:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="268"/>
-        <location filename="settingsdialogworkarounds.cpp" line="269"/>
-        <location filename="settingsdialogworkarounds.cpp" line="272"/>
+        <location filename="settingsdialogworkarounds.cpp" line="358"/>
+        <location filename="settingsdialogworkarounds.cpp" line="359"/>
+        <location filename="settingsdialogworkarounds.cpp" line="362"/>
         <source>Restart Mod Organizer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialogworkarounds.cpp" line="270"/>
+        <location filename="settingsdialogworkarounds.cpp" line="360"/>
         <source>Geometries will be reset to their default values.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8738,42 +8764,42 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>SelfUpdater</name>
     <message>
-        <location filename="selfupdater.cpp" line="203"/>
+        <location filename="selfupdater.cpp" line="204"/>
         <source>Download failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="204"/>
+        <location filename="selfupdater.cpp" line="205"/>
         <source>Failed to find correct download, please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="218"/>
+        <location filename="selfupdater.cpp" line="219"/>
         <source>Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="219"/>
+        <location filename="selfupdater.cpp" line="220"/>
         <source>Download in progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="311"/>
+        <location filename="selfupdater.cpp" line="312"/>
         <source>Download failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="322"/>
+        <location filename="selfupdater.cpp" line="323"/>
         <source>Failed to install update: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="340"/>
+        <location filename="selfupdater.cpp" line="341"/>
         <source>Failed to start %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="selfupdater.cpp" line="348"/>
+        <location filename="selfupdater.cpp" line="349"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9587,6 +9613,10 @@ p, li { white-space: pre-wrap; }
                           For Skyrim, this can be used instead of Archive Invalidation. It should make AI redundant for all Profiles.
                           For the other games this is not a sufficient replacement for AI!
                         </source>
+        <oldsource>
+                                For Skyrim, this can be used instead of Archive Invalidation. It should make AI redundant for all Profiles.
+                                For the other games this is not a sufficient replacement for AI!
+                              </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9596,83 +9626,112 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="settingsdialog.ui" line="2141"/>
-        <source>Add executables to the blacklist to prevent them from
+        <source>
+                          Add executables to the blacklist to prevent them from
+                          accessing the virtual file system. This is useful to prevent
+                          unintended programs from being hooked. Hooking unintended
+                          programs may affect the execution of these programs or the
+                          programs you are intentionally running.
+                        </source>
+        <oldsource>Add executables to the blacklist to prevent them from
 accessing the virtual file system. This is useful to prevent
 unintended programs from being hooked. Hooking unintended
 programs may affect the execution of these programs or the
-programs you are intentionally running.</source>
+programs you are intentionally running.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2148"/>
+        <location filename="settingsdialog.ui" line="2150"/>
         <source>Add executables to the blacklist to prevent them from accessing the virtual file system.  This is useful to prevent unintended programs from being hooked.  Hooking unintended programs may affect the execution of these programs or the programs you are intentionally running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2151"/>
+        <location filename="settingsdialog.ui" line="2153"/>
         <source>Executables Blacklist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2161"/>
-        <location filename="settingsdialog.ui" line="2164"/>
+        <location filename="settingsdialog.ui" line="2163"/>
+        <location filename="settingsdialog.ui" line="2166"/>
         <source>Files to skip or ignore from the virtual file system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2167"/>
+        <location filename="settingsdialog.ui" line="2169"/>
         <source>Skip File Suffixes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2177"/>
-        <location filename="settingsdialog.ui" line="2180"/>
+        <location filename="settingsdialog.ui" line="2179"/>
+        <location filename="settingsdialog.ui" line="2182"/>
         <source>Directories to skip or ignore from the virtual file system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2183"/>
+        <location filename="settingsdialog.ui" line="2185"/>
         <source>Skip Directories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2193"/>
-        <location filename="settingsdialog.ui" line="2196"/>
+        <location filename="settingsdialog.ui" line="2195"/>
+        <location filename="settingsdialog.ui" line="2198"/>
+        <source>Files to skip or ignore from the virtual file system on MO2 window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2201"/>
+        <source>Skip File Suffixes on Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2211"/>
+        <location filename="settingsdialog.ui" line="2214"/>
+        <source>Directories to skip or ignore from the virtual file system on MO2 window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2217"/>
+        <source>Skip Directories on Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="settingsdialog.ui" line="2258"/>
+        <location filename="settingsdialog.ui" line="2261"/>
         <source>Archives to exclude from BSA parsing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2199"/>
-        <source>Exclude BSA Archve Parsing</source>
+        <location filename="settingsdialog.ui" line="2264"/>
+        <source>Exclude BSA Archive Parsing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2242"/>
+        <location filename="settingsdialog.ui" line="2307"/>
         <source>These are workarounds for problems with Mod Organizer. Please make sure you read the help text before changing anything here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2253"/>
+        <location filename="settingsdialog.ui" line="2318"/>
         <source>Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2262"/>
+        <location filename="settingsdialog.ui" line="2327"/>
         <source>Logs and Crashes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2271"/>
+        <location filename="settingsdialog.ui" line="2336"/>
         <source>Log Level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2278"/>
+        <location filename="settingsdialog.ui" line="2343"/>
         <source>Decides the amount of data printed to &quot;ModOrganizer.log&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2281"/>
+        <location filename="settingsdialog.ui" line="2346"/>
         <source>
                                     Decides the amount of data printed to &quot;ModOrganizer.log&quot;.
                                     &quot;Debug&quot; produces very useful information for finding problems. There is usually no noteworthy performance impact but the file may become rather large. If this is a problem you may prefer the &quot;Info&quot; level for regular use. On the &quot;Error&quot; level the log file usually remains empty.
@@ -9680,17 +9739,17 @@ programs you are intentionally running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2291"/>
+        <location filename="settingsdialog.ui" line="2356"/>
         <source>Crash Dumps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2298"/>
+        <location filename="settingsdialog.ui" line="2363"/>
         <source>Decides which type of crash dumps are collected when injected processes crash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2301"/>
+        <location filename="settingsdialog.ui" line="2366"/>
         <source>
                                     Decides which type of crash dumps are collected when injected processes crash.
                                     &quot;None&quot; Disables the generation of crash dumps by MO.
@@ -9701,17 +9760,17 @@ programs you are intentionally running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2314"/>
+        <location filename="settingsdialog.ui" line="2379"/>
         <source>Max Dumps To Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2321"/>
+        <location filename="settingsdialog.ui" line="2386"/>
         <source>Maximum number of crash dumps to keep on disk. Use 0 for unlimited.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2324"/>
+        <location filename="settingsdialog.ui" line="2389"/>
         <source>
                                     Maximum number of crash dumps to keep on disk. Use 0 for unlimited.
                                     Set &quot;Crash Dumps&quot; above to None to disable crash dump collection.
@@ -9719,22 +9778,22 @@ programs you are intentionally running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2337"/>
+        <location filename="settingsdialog.ui" line="2402"/>
         <source>Integrated LOOT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2346"/>
+        <location filename="settingsdialog.ui" line="2411"/>
         <source>LOOT Log Level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2359"/>
+        <location filename="settingsdialog.ui" line="2424"/>
         <source>Click a link to open the location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="settingsdialog.ui" line="2362"/>
+        <location filename="settingsdialog.ui" line="2427"/>
         <source>
                             Logs and crash dumps are stored under your current instance in the &lt;a href=&quot;LOGS_FULL_PATH&quot;&gt;LOGS_DIR&lt;/a&gt;
                             and &lt;a href=&quot;DUMPS_FULL_PATH&quot;&gt;DUMPS_DIR&lt;/a&gt; folders.

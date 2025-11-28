@@ -1140,6 +1140,13 @@ void PluginContainer::loadPlugins()
   QString pluginPath =
       qApp->applicationDirPath() + "/" + ToQString(AppConfig::pluginPath());
   log::debug("looking for plugins in {}", QDir::toNativeSeparators(pluginPath));
+  QString externalPluginPath =
+      QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) +
+      "/external_cpp_plugins";
+
+  QDir externalPluginDir(externalPluginPath);
+  QDirIterator externalIter(externalPluginPath,
+                            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
   QDirIterator iter(pluginPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 
   while (iter.hasNext()) {
@@ -1188,6 +1195,54 @@ void PluginContainer::loadPlugins()
     loadCheck.write("\n");
     loadCheck.flush();
   }
+
+  log::debug("looking for external plugins in {}", externalPluginPath);
+  while (externalIter.hasNext()) {
+    externalIter.next();
+
+  if (skipPlugin == externalIter.fileName()) {
+      log::debug("external plugin \"{}\" skipped for this session", externalIter.fileName());
+    continue;
+  }
+
+  if (m_Organizer) {
+    if (m_Organizer->settings().plugins().blacklisted(externalIter.fileName())) {
+      log::debug("external plugin \"{}\" blacklisted", externalIter.fileName());
+      continue;
+    }
+  }
+
+  if (loadCheck.isOpen()) {
+    loadCheck.write(externalIter.fileName().toUtf8());
+    loadCheck.write("\n");
+    loadCheck.flush();
+  }
+
+  QString filepath = externalIter.filePath();
+  if (QLibrary::isLibrary(filepath)) {
+    loadQtPlugin(filepath);
+  } else if (auto p = isQtPluginFolder(filepath)) {
+    loadQtPlugin(*p);
+  }
+}
+
+if (skipPlugin.isEmpty()) {
+  // remove the load check file on success
+  if (loadCheck.isOpen()) {
+    loadCheck.remove();
+  }
+} else {
+  // remember the plugin for next time
+  if (loadCheck.isOpen()) {
+    loadCheck.close();
+  }
+
+  log::warn("user skipped external plugin '{}', remembering in loadcheck", skipPlugin);
+  loadCheck.open(QIODevice::WriteOnly);
+  loadCheck.write(skipPlugin.toUtf8());
+  loadCheck.write("\n");
+  loadCheck.flush();
+}
 
   bf::at_key<IPluginDiagnose>(m_Plugins).push_back(this);
 

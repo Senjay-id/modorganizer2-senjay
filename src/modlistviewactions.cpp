@@ -1246,12 +1246,12 @@ void ModListViewActions::handleUpdateDialogAccepted(
         QJsonDocument jsonDoc(jsonData);
 
         // Get path to mo2 appdata
-        QString baseDir = m_core.basePath();
-        QDir dir(baseDir);
-        baseDir = dir.absolutePath();
+        //QString baseDir = m_core.basePath();
+        //QDir dir(baseDir);
+        //baseDir = dir.absolutePath();
         QString appDataDir =
-            QProcessEnvironment::systemEnvironment().value("LOCALAPPDATA");
-        QString filePath = appDataDir + "/ModOrganizer/mod_update_cache.json";
+            QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        QString filePath = appDataDir + "/mod_update_cache.json";
 
         // Write JSON file
         QFile jsonFile(filePath);

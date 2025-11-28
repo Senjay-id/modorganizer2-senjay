@@ -344,6 +344,34 @@ void Settings::setSkipDirectories(const QStringList& s)
   set(m_Settings, "Settings", "skip_directories", s);
 }
 
+QStringList Settings::skipFileSuffixesWindow() const
+{
+  static const QStringList def = QStringList() << ".mohidden";
+
+  auto setting = get<QStringList>(m_Settings, "Settings", "skip_file_suffixes_window", def);
+
+  return setting;
+}
+
+void Settings::setSkipFileSuffixesWindow(const QStringList& s)
+{
+  set(m_Settings, "Settings", "skip_file_suffixes_window", s);
+}
+
+QStringList Settings::skipDirectoriesWindow() const
+{
+  static const QStringList def = QStringList() << ".git" << "CalienteTools";
+
+  auto setting = get<QStringList>(m_Settings, "Settings", "skip_directories_window", def);
+
+  return setting;
+}
+
+void Settings::setSkipDirectoriesWindow(const QStringList& s)
+{
+  set(m_Settings, "Settings", "skip_directories_window", s);
+}
+
 QStringList Settings::excludeBSAArchiveParsing() const
 {
   static const QStringList _default = QStringList() << "TaleOfTwoWastelands - Main.bsa";

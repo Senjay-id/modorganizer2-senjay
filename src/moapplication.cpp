@@ -709,12 +709,21 @@ QString MOSplash::getSplashPath(const Settings& settings, const QString& dataPat
   }
 
   // try splash from game data directory
+  const QDir& gamedDir         = game->gameDirectory();
   const QDir& gamedataDir      = game->dataDirectory();
+  const QString gameSplash     = gamedDir.filePath("mo2splash.png");
   const QString gamedataSplash = gamedataDir.filePath("mo2splash.png");
+  
   if (QFile::exists(gamedataSplash)) {
     QImage image(gamedataSplash);
     if (!image.isNull()) {
       return gamedataSplash;
+    }
+  }
+  else if (QFile::exists(gameSplash)) {
+    QImage image(gameSplash);
+    if (!image.isNull()) {
+      return gameSplash;
     }
   }
 
